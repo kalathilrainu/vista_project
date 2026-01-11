@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="text-danger">Village Officer Routing Override</h2>
+        <p class="text-muted">Manually reassign tokens or route pending items.</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Token</th>
+                        <th>Visitor</th>
+                        <th>Current Status</th>
+                        <th>Current Desk</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for visit in visits %}
+                    <tr>
+                        <td>{{ visit.token }}</td>
+                        <td>{{ visit.name|default:"-" }}</td>
+                        <td>
+                            <span
+                                class="badge {% if visit.status == 'WAITING' %}bg-secondary{% elif visit.status == 'ROUTED' %}bg-warning{% elif visit.status == 'IN_PROGRESS' %}bg-info{% endif %}">
+                                {{ visit.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ visit.current_desk|default:"Unassigned" }}</td>
+                        <td>
+                            <form method="post" class="d-flex gap-2">
+                                {% csrf_token %}
+                                <input type="hidden" name="visit_id" value="{{ visit.id }}">
+                                <select name="desk_id" class="form-select form-select-sm" style="width: auto;" required>
+                                    <option value="">Select Desk...</option>
+                                    {% for desk in desks %}
+                                    <option value="{{ desk.id }}" {% if visit.current_desk==desk %}selected{% endif %}>
+                                        {{ desk.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Assign</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No active visits found for routing.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

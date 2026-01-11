@@ -1,0 +1,20 @@
+<tr>
+    <td><strong>{{ object.token }}</strong></td>
+    <td>
+        {{ object.name|default:"-" }}
+        {% if object.mobile %}<br><small class="text-muted">{{ object.mobile }}</small>{% endif %}
+    </td>
+    <td>{{ object.purpose.name }}</td>
+    <td>
+        {% if object.status == 'COMPLETED' %}
+        <span class="badge bg-success">Completed</span>
+        {% elif object.status == 'CANCELLED' %}
+        <span class="badge bg-danger">Cancelled</span>
+        {% elif object.status == 'IN_PROGRESS' %}
+        <span class="badge bg-warning text-dark">In Progress</span>
+        {% else %}
+        <span class="badge bg-secondary">{{ object.get_status_display }}</span>
+        {% endif %}
+    </td>
+    <td>{{ object.formatted_issue_time }}</td>
+</tr>

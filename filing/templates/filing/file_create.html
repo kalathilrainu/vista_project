@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <!-- Main Green Header (Standardized) -->
+    <div class="dashboard-header mb-4 p-3 rounded text-white shadow-sm" style="background-color: var(--brand-primary);">
+        <h3 class="m-0 fw-bold"><i class="bi bi-folder-plus me-2"></i>Create Office File</h3>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <!-- Removed inner card header title since we have a main header now, or keep it subtle -->
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        Creating file for Token <strong>{{ visit.token }}</strong> ({{ visit.purpose.name }})
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">File Number</label>
+                            <input type="text" class="form-control" value="Auto-generated (Serial/Year)" disabled
+                                readonly>
+                            <div class="form-text text-muted">File number will be assigned automatically upon creation.
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Interim Status</label>
+                                {{ form.interim_status }}
+                            </div>
+                            <!-- Add other fields as needed for initial creation, or keep simple -->
+                        </div>
+
+                        <div class="mt-4 text-end">
+                            <a href="{% url 'routing:visit_queue' %}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn text-white"
+                                style="background-color: var(--brand-primary);"><i class="bi bi-check-lg"></i> Create
+                                File</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

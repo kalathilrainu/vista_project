@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}User Management | VISTA{% endblock %}
+
+{% block content %}
+<div style="max-width: 1600px; margin: 0 auto;">
+
+
+    <!-- Header -->
+    <div class="dashboard-header mb-4 p-3 rounded text-white shadow-sm d-flex justify-content-between align-items-center"
+        style="background-color: var(--brand-primary);">
+        <h4 class="m-0 fw-bold"><i class="bi bi-people-fill me-2"></i>User Management</h4>
+        <span style="font-size: 0.95rem; opacity: 0.9;">Manage staff, assign roles, and configure user access.</span>
+    </div>
+
+    <!-- Management Grid -->
+    <div class="dashboard-grid cards-grid-3">
+        <!-- Card 1: All Users -->
+        <a href="{% url 'user_list' %}" class="dash-card">
+            <div class="dash-icon">
+                <img src="{% static 'images/users.svg' %}" alt="Users">
+            </div>
+            <h3>All Users</h3>
+            <p>View, edit, and create system users.</p>
+            <span class="dash-link">Manage Users &rarr;</span>
+        </a>
+
+        <!-- Card 2: Staff Directory -->
+        <a href="{% url 'staff_list' %}" class="dash-card">
+            <div class="dash-icon">
+                <img src="{% static 'images/users.svg' %}" alt="Staff">
+            </div>
+            <h3>Staff Members</h3>
+            <p>Manage employee details and PEN numbers.</p>
+            <span class="dash-link">Manage Staff &rarr;</span>
+        </a>
+
+        <!-- Card 3: Staff Assignments -->
+        <a href="{% url 'userassignment_list' %}" class="dash-card">
+            <div class="dash-icon">
+                <img src="{% static 'images/edit.svg' %}" alt="Assignments">
+            </div>
+            <h3>Staff Assignments</h3>
+            <p>Assign staff to desks and roles for today.</p>
+            <span class="dash-link">Manage Assignments &rarr;</span>
+        </a>
+
+        <!-- Card 4: Login History -->
+        <a href="{% url 'loginsession_list' %}" class="dash-card">
+            <div class="dash-icon">
+                <img src="{% static 'images/monitor.svg' %}" alt="History">
+            </div>
+            <h3>Login History</h3>
+            <p>Audit login sessions and activity logs.</p>
+            <span class="dash-link">View Logs &rarr;</span>
+        </a>
+        <!-- Card 5: Manage Offices -->
+        <a href="{% url 'office_list' %}" class="dash-card">
+            <div class="dash-icon">
+                <img src="{% static 'images/users.svg' %}" alt="Offices">
+            </div>
+            <h3>Manage Offices</h3>
+            <p>Add or edit village office locations.</p>
+            <span class="dash-link">View Offices &rarr;</span>
+        </a>
+
+        <!-- Card 6: Manage Desks -->
+        <a href="{% url 'desk_list' %}" class="dash-card">
+            <div class="dash-icon">
+                <img src="{% static 'images/edit.svg' %}" alt="Desks">
+            </div>
+            <h3>Manage Desks</h3>
+            <p>Configure desks and seating arrangements.</p>
+            <span class="dash-link">View Desks &rarr;</span>
+        </a>
+    </div>
+
+    <!-- Developed By Card -->
+    <div class="card mt-4 border-0 shadow-sm" style="background-color: #dcfce7;">
+        <div class="card-body py-3">
+            <h6 class="fw-bold mb-1">Developed By</h6>
+            <div class="d-flex align-items-center">
+                <span class="fs-5 fw-bold">Joseph Rainu KT, Village Officer, Nattakam</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

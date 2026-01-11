@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Login History | VISTA{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 3rem 1.5rem;">
+    <!-- Breadcrumb -->
+    <div style="margin-bottom: 2rem;">
+        <a href="{% url 'user_management' %}" style="color: var(--brand-primary); font-weight: 600;">&larr; Back to
+            Dashboard</a>
+    </div>
+
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div>
+            <h1 style="font-family: 'Merriweather', serif; font-size: 2rem; color: var(--brand-dark);">Login History
+            </h1>
+            <p style="color: var(--text-muted);">Audit login sessions and activity logs.</p>
+        </div>
+    </div>
+
+    <!-- Search & Filter -->
+    <form method="get" class="search-bar-container" style="max-width: 600px; margin-bottom: 2rem;">
+        <input type="text" name="q" class="hero-search-input" placeholder="Search by username or IP..."
+            value="{{ request.GET.q|default:'' }}">
+        <button type="submit" class="btn-hero-search">Search</button>
+    </form>
+
+    <!-- Logs Table -->
+    <div style="background: #fff; border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead style="background: var(--brand-dark); color: #fff;">
+                <tr>
+                    <th style="padding: 1rem; text-align: left; font-weight: 600;">System User</th>
+                    <th style="padding: 1rem; text-align: left; font-weight: 600;">Staff Name</th>
+                    <th style="padding: 1rem; text-align: left; font-weight: 600;">Login Time</th>
+                    <th style="padding: 1rem; text-align: left; font-weight: 600;">Logout Time</th>
+                    <th style="padding: 1rem; text-align: left; font-weight: 600;">IP Address</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for session in sessions %}
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                    <td style="padding: 1rem; font-weight: 500;">{{ session.user.username }}</td>
+                    <td style="padding: 1rem;">{{ session.staff_member.name|default:"-" }}</td>
+                    <td style="padding: 1rem;">{{ session.login_time }}</td>
+                    <td style="padding: 1rem;">{{ session.logout_time|default:"Active" }}</td>
+                    <td style="padding: 1rem;">{{ session.ip_address|default:"-" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="padding: 3rem; text-align: center; color: var(--text-muted);">
+                        No login history found matching your search.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div style="margin-top: 2rem; display: flex; justify-content: center; gap: 0.5rem;">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q }}" class="btn-outline-hero"
+            style="color: var(--text-main); border-color: var(--border-color);">Previous</a>
+        {% endif %}
+        <span style="padding: 0.75rem 1rem;">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&q={{ request.GET.q }}" class="btn-outline-hero"
+            style="color: var(--text-main); border-color: var(--border-color);">Next</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

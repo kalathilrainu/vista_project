@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load routing_extras %}
+
+{% block content %}
+<!-- Meta refresh removed to prevent closing modals -->
+
+<div class="dashboard-header mb-4 p-3 rounded text-white shadow-sm" style="background-color: var(--brand-primary);">
+    <h4 class="m-0 fw-bold"><i class="bi bi-person-workspace me-2"></i>My Desk Queue</h4>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="text-white" style="background-color: var(--brand-dark);">
+                    <tr>
+                        <th style="width: 10%;">Token</th>
+                        <th style="width: 20%;">Visitor Name</th>
+                        <th style="width: 15%;">Mobile Number</th>
+                        <th style="width: 25%;">Purpose</th>
+                        <th style="width: 10%;">Reference No</th>
+                        <th class="text-center" style="width: 20%;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in desk_items %}
+                    <tr>
+                        <td class="fw-bold fs-5 text-center">{{ item.visit.token|short_token }}</td>
+                        <td>{{ item.visit.name|default:"Guest" }}</td>
+                        <td>{{ item.visit.mobile|default:"-" }}</td>
+                        <td>{{ item.visit.purpose.name }}</td>
+                        <td>{% if item.visit.reference_number %}{{ item.visit.reference_number }}{% else %}-{% endif %}
+                        </td>
+
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center align-items-center gap-2">
+                                <!-- View Button -->
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#deskViewModal{{ item.visit.id }}" style="width: 80px;">
+                                    View
+                                </button>
+
+                                <!-- Action Button (Attend/Complete) -->
+                                {% if item.visit.status == 'ROUTED' or item.visit.status == 'WAITING' %}
+                                <form action="{% url 'routing:attend_visit' item.visit.id %}" method="post"
+                                    class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success btn-sm"
+                                        style="width: 80px;">Call</button>
+                                </form>
+                                {% elif item.visit.status == 'IN_PROGRESS' %}
+                                <div class="d-flex gap-1 justify-content-center">
+                                    <a href="{% url 'transactions:process_transaction' item.visit.id %}?source=desk"
+                                        class="btn btn-primary btn-sm fw-bold">Resume</a>
+                                    <button type="button" class="btn btn-dark btn-sm" data-bs-toggle="modal"
+                                        data-bs-target="#transferModal{{ item.visit.id }}">
+                                        Transfer
+                                    </button>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- View Details Modal -->
+                            <div class="modal fade" id="deskViewModal{{ item.visit.id }}" tabindex="-1"
+                                aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Visit Details: {{ item.visit.token }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body text-start">
+                                            <form id="deskEditVisitForm{{ item.visit.id }}"
+                                                action="{% url 'routing:update_visit' item.visit.id %}" method="post">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Visitor Name</label>
+                                                    <input type="text" name="name" class="form-control"
+                                                        value="{{ item.visit.name|default:'' }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Mobile Number</label>
+                                                    <input type="text" name="mobile" class="form-control"
+                                                        value="{{ item.visit.mobile|default:'' }}" pattern="\d*"
+                                                        title="Digits only">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Purpose</label>
+                                                    <select name="purpose" class="form-select" required
+                                                        id="desk_purpose_{{ item.visit.id }}">
+                                                        {% for p in all_purposes %}
+                                                        <option value="{{ p.id }}">{{ p.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                    <script>
+                                                        document.getElementById('desk_purpose_{{ item.visit.id }}').value = "{{ item.visit.purpose.id }}";
+                                                    </script>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Reference Number</label>
+                                                    <input type="text" name="reference_number" class="form-control"
+                                                        value="{{ item.visit.reference_number|default:'' }}">
+                                                </div>
+                                            </form>
+
+                                            {% if item.visit.reference_number %}
+                                            <div class="alert alert-info py-2">
+                                                <small><i class="bi bi-info-circle"></i> Check system for File: {{
+                                                    item.visit.reference_number }}</small>
+                                            </div>
+                                            {% endif %}
+                                            <hr>
+                                            <p><small class="text-muted">Full Token: {{ item.visit.token }}</small></p>
+                                            <p><small class="text-muted">Issued At: {{ item.visit.formatted_issue_time
+                                                    }}</small></p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" form="deskEditVisitForm{{ item.visit.id }}"
+                                                class="btn btn-primary">Save Changes</button>
+
+                                            {% if item.visit.status == 'ROUTED' or item.visit.status == 'WAITING' %}
+                                            <!-- CRITICAL: Must submit edit form to save changes before calling -->
+                                            <button type="submit" form="deskEditVisitForm{{ item.visit.id }}"
+                                                name="action" value="call" class="btn btn-success">Call Now</button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Transfer Modal -->
+                            {% if item.visit.status == 'IN_PROGRESS' %}
+                            <div class="modal fade" id="transferModal{{ item.visit.id }}" tabindex="-1"
+                                aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Transfer Token {{ item.visit.token }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body text-start">
+                                            <form action="{% url 'routing:transfer_visit' item.visit.id %}"
+                                                method="post">
+                                                {% csrf_token %}
+                                                <div class="mb-3">
+                                                    <label class="form-label">Transfer To Desk</label>
+                                                    <select name="target_desk" class="form-select" required>
+                                                        <option value="">Select Desk...</option>
+                                                        {% for d in all_desks %}
+                                                        {% if d.id != user.desk.id %}
+                                                        <option value="{{ d.id }}">{{ d.name }}</option>
+                                                        {% endif %}
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Remarks</label>
+                                                    <textarea name="remarks" class="form-control" rows="2"
+                                                        placeholder="Reason for transfer..."></textarea>
+                                                </div>
+                                                <button type="submit" class="btn btn-primary w-100">Transfer</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted p-4">
+                            <h4>No pending tokens at your desk.</h4>
+                            <p>Waiting for auto-routing or manual assignment.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Poll every 30 seconds
+        setInterval(function () {
+            // Check if any modal is open
+            const openModal = document.querySelector('.modal.show');
+            if (!openModal) {
+                console.log('Refreshing queue...');
+                window.location.reload();
+            } else {
+                console.log('Modal open, skipping refresh');
+            }
+        }, 30000);
+    });
+</script>
+{% endblock %}

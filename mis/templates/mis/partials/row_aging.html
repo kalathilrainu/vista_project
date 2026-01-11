@@ -1,0 +1,27 @@
+<tr>
+    <td>
+        <a href="{% url 'filing:file_detail' object.pk %}"><strong>{{ object.file_number }}</strong></a>
+    </td>
+    <td>{{ object.created_at|date:"d M Y" }}</td>
+    <td>
+        {% with days=object.days_pending %}
+        <!-- Logic to be handled in view/model property usually, but simple calculation here if context passed -->
+        <!-- Since we formatted it in view as string "X days", just show it. 
+             Wait, view returns objects, not dicts in ListView usually, unless get_queryset returns dicts.
+             My view returned QS. My export used custom logic. 
+             Let's blindly trust the view context has a property or we calculate in template.
+             Django templates can't do days subtraction easily without tags.
+             Let's rely on 'created_at|timesince' for simplicity or update model.
+        -->
+        <strong class="text-danger">{{ object.created_at|timesince }}</strong>
+        {% endwith %}
+    </td>
+    <td>{{ object.interim_status }}</td>
+    <td>
+        {% if object.desk %}
+        {{ object.desk.name }}
+        {% else %}
+        <span class="text-muted">Unassigned</span>
+        {% endif %}
+    </td>
+</tr>

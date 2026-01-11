@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Main Green Header -->
+    <div class="dashboard-header mb-4 p-3 rounded text-white shadow-sm" style="background-color: var(--brand-primary);">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="m-0 fw-bold"><i class="bi bi-file-earmark-text me-2"></i>Process File</h4>
+            <a href="{% url 'filing:file_list' %}" class="btn btn-sm btn-outline-light fw-bold">
+                <i class="bi bi-arrow-left me-1"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Sidebar / File Info -->
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header text-white" style="background-color: var(--brand-dark);">
+                    <h5 class="mb-0">File: {{ office_file.file_number }}</h5>
+                </div>
+                <div class="card-body">
+                    <!-- DEBUG: v3 Formatter Evasion -->
+                    <p>
+                        <strong>Status:</strong>
+                        <span class="badge bg-secondary">
+                            {{ office_file.get_status_display }}
+                        </span>
+                    </p>
+                    <p>
+                        <strong>Interim Status:</strong>
+                        <span class="badge bg-info text-dark">
+                            {{ office_file.get_interim_status_display }}
+                        </span>
+                    </p>
+                    <p><strong>Assigned Desk:</strong> {{ office_file.desk.name }}</p>
+                    <p><strong>Created:</strong> {{ office_file.created_at|date:"d M Y" }}</p>
+                    <hr>
+                    <h6>Related Token</h6>
+                    <p class="mb-0">Token: <strong>{{ office_file.visit.token }}</strong></p>
+                    <p class="small text-muted">{{ office_file.visit.name }} - {{ office_file.visit.purpose.name }}</p>
+                </div>
+            </div>
+
+            <!-- Add Document Form -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light border-bottom">
+                    <h6 class="mb-0 text-success fw-bold"><i class="bi bi-paperclip"></i> Add Documents</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="add_document" value="true">
+                        <div class="mb-3">
+                            {{ doc_form.papers_submitted }}
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary w-100">Add Entry</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-8">
+            <!-- Details Update Form -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header text-white" style="background-color: var(--brand-primary);">
+                    <h5 class="mb-0">File Details</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="update_file" value="true">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="small text-muted">Fee Receipt No</label>
+                                {{ file_form.fee_receipt_no }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small text-muted">Fee Receipt Date</label>
+                                {{ file_form.fee_receipt_date }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small text-muted">Reply To</label>
+                                {{ file_form.reply_to }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small text-muted">Reply Date</label>
+                                {{ file_form.reply_date }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small text-muted">Reply Type</label>
+                                {{ file_form.reply_type }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small text-muted">Despatch Mode</label>
+                                {{ file_form.despatch_mode }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small text-muted">Despatch ID / Memo No</label>
+                                {{ file_form.despatch_id }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small text-muted">Interim Status</label>
+                                {{ file_form.interim_status }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small text-muted">Final Status</label>
+                                {{ file_form.status }}
+                            </div>
+                            <div class="col-12">
+                                <label class="small text-muted">Remarks</label>
+                                {{ file_form.remarks1 }}
+                                <div class="mt-2">{{ file_form.remarks2 }}</div>
+                                <div class="mt-2">{{ file_form.remarks3 }}</div>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-end">
+                            <button type="submit" name="action" value="update" class="btn text-white me-2"
+                                style="background-color: var(--brand-primary);">Update
+                                Details</button>
+                            <button type="submit" name="action" value="close" class="btn btn-secondary">Close</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Document History -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0 text-secondary">Document History</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for doc in office_file.document_submissions.all %}
+                    <li class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ doc.papers_submitted }}</h6>
+                            <small class="text-muted">{{ doc.submitted_at|timesince }} ago</small>
+                        </div>
+                        <small class="text-muted">By {{ doc.submitted_by.username|default:"System" }}</small>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-center text-muted py-4">No documents submitted yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

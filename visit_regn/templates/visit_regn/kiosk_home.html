@@ -1,0 +1,100 @@
+{% load i18n %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visitor Kiosk - {{ office.name|default:"VISTA" }}</title>
+
+    <!-- Link to the new Kiosk V2 CSS -->
+    <link rel="stylesheet" href="{% static 'visit_regn/css/kiosk_v2.css' %}?v=2.0">
+</head>
+
+<body class="kiosk-mode">
+
+    <div class="kiosk-container">
+
+        <!-- Glassmorphism Main Card -->
+        <div class="kiosk-card">
+
+            <!-- Header -->
+            <header class="kiosk-header">
+                <div class="kiosk-logo-area">
+                    <img src="{% static 'images/vista_logo.png' %}" alt="VISTA Logo" class="kiosk-logo-img">
+                    <img src="{% static 'images/gov_kerala_logo.png' %}" alt="Kerala Govt" class="kiosk-logo-img"
+                        style="border-left: 2px solid #ddd; padding-left: 1.5rem;">
+                </div>
+                <div class="kiosk-office-name">
+                    <h1>Village Integrated Service & Transaction Application</h1>
+                    <p>Department of Revenue, Government of Kerala</p>
+                    {% if office %}
+                    <p style="color: var(--brand-gold-dark); font-size: 1rem; margin-top: 5px;">{{ office.name }}</p>
+                    {% endif %}
+                </div>
+            </header>
+
+            <!-- Search Bar Section -->
+            <div class="kiosk-search-section">
+                <div class="search-bar-container">
+                    <form action="{% url 'track_status' %}" method="get"
+                        style="display: flex; width: 100%; align-items: center;">
+                        <input type="text" name="q" placeholder="Track File / Token Status..."
+                            class="kiosk-search-input" style="border: none; outline: none; flex-grow: 1;">
+                        <button type="submit" class="btn-kiosk-search">Search</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Action Grid -->
+            <div class="kiosk-actions">
+
+                <!-- Action 1: QR Check-in -->
+                <a href="{% url 'visit_regn:qr_register' %}" class="action-card">
+                    <div class="card-icon-wrapper">
+                        <!-- Using 'hero_illustration' as placeholder or 'search' if scan icon missing, or just SVG path -->
+                        <!-- Better to use an SVG path inline if we want a specific icon not in files, but let's use search.svg which implies 'scan/find' -->
+                        <img src="{% static 'images/search.svg' %}" alt="QR Scan" class="card-icon">
+                    </div>
+                    <span class="card-title">QR Check-in</span>
+                </a>
+
+                <!-- Action 2: Manual Registration -->
+                <a href="{% url 'visit_regn:manual_register' %}" class="action-card">
+                    <div class="card-icon-wrapper">
+                        <img src="{% static 'images/edit.svg' %}" alt="Register" class="card-icon">
+                    </div>
+                    <span class="card-title">New Registration</span>
+                </a>
+
+                <!-- Action 3: Quick Token -->
+                <a href="{% url 'visit_regn:quick_register' %}" class="action-card">
+                    <div class="card-icon-wrapper">
+                        <img src="{% static 'images/file-text.svg' %}" alt="Token" class="card-icon">
+                    </div>
+                    <span class="card-title">Quick Token</span>
+                </a>
+
+            </div>
+
+            <!-- Footer -->
+            <footer class="kiosk-footer">
+                <div class="credits">
+                    &copy; {% now "Y" %} VISTA Portal
+                </div>
+
+                <div class="logout-container">
+                    <form action="{% url 'logout' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-logout">Exit Kiosk Mode</button>
+                    </form>
+                </div>
+            </footer>
+
+        </div>
+    </div>
+
+</body>
+
+</html>

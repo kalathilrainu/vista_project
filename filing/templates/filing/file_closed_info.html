@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex align-items-center justify-content-center min-vh-100 bg-light">
+    <div class="card border-0 shadow-lg" style="max-width: 500px; width: 100%; border-radius: 1rem;">
+        <div class="card-body p-5 text-center">
+            <div class="mb-4">
+                <span
+                    class="d-inline-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger rounded-circle p-4">
+                    <i class="bi bi-folder-x display-4"></i>
+                </span>
+            </div>
+
+            <h3 class="fw-bold mb-1">File Closed</h3>
+            <p class="text-muted mb-4">File Number <span class="fw-bold text-dark">{{ office_file.file_number }}</span>
+                is currently archived.</p>
+
+            <div class="bg-light rounded p-3 mb-4 text-start">
+                <div class="row g-2">
+                    <div class="col-6">
+                        <small class="text-uppercase text-muted fw-bold"
+                            style="font-size: 0.7rem; letter-spacing: 1px;">Closed Date</small>
+                        <p class="mb-0 fw-medium text-dark">{{ office_file.updated_at|date:"d M Y" }}</p>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-uppercase text-muted fw-bold"
+                            style="font-size: 0.7rem; letter-spacing: 1px;">Reply To</small>
+                        <p class="mb-0 fw-medium text-dark">{{ office_file.reply_to|default:"-" }}</p>
+                    </div>
+                    {% if office_file.remarks1 %}
+                    <div class="col-12 mt-3">
+                        <small class="text-uppercase text-muted fw-bold"
+                            style="font-size: 0.7rem; letter-spacing: 1px;">Remarks</small>
+                        <p class="mb-0 text-dark fst-italic">{{ office_file.remarks1 }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="d-grid gap-2">
+
+                <a href="{% url 'filing:file_detail' office_file.id %}"
+                    class="btn btn-link text-decoration-none text-muted">View File Details (Read Only)</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

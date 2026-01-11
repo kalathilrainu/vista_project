@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Visit Details -->
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{% trans "Token" %} #{{ visit.token }}</h5>
+                    <span class="badge fs-6
+                        {% if visit.status == 'WAITING' %}bg-warning text-dark
+                        {% elif visit.status == 'ROUTED' %}bg-info text-dark
+                        {% elif visit.status == 'IN_PROGRESS' %}bg-primary
+                        {% elif visit.status == 'COMPLETED' %}bg-success
+                        {% else %}bg-secondary{% endif %}">
+                        {{ visit.get_status_display }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">{% trans "Visitor Name" %}</div>
+                        <div class="col-sm-8 fw-bold">{{ visit.name|default:"-" }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">{% trans "Mobile" %}</div>
+                        <div class="col-sm-8">{{ visit.mobile|default:"-" }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">{% trans "Purpose" %}</div>
+                        <div class="col-sm-8">{{ visit.purpose.name }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">{% trans "Reference" %}</div>
+                        <div class="col-sm-8">{{ visit.reference_number|default:"-" }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">{% trans "Issue Time" %}</div>
+                        <div class="col-sm-8">{{ visit.token_issue_time }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 text-muted">{% trans "Current Desk" %}</div>
+                        <div class="col-sm-8">{{ visit.current_desk.name|default:"Unassigned" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visit Logs / History -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">{% trans "History / Logs" %}</h6>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for log in visit.logs.all|dictsortreversed:"timestamp" %}
+                    <div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">{{ log.get_action_display }}</h6>
+                            <small class="text-muted">{{ log.timestamp|date:"H:i:s" }}</small>
+                        </div>
+                        <p class="mb-1 text-muted small">
+                            {% if log.remarks %}{{ log.remarks }}{% endif %}
+                            {% if log.from_desk or log.to_desk %}
+                            <br>{% trans "From" %}: {{ log.from_desk|default:"-" }} → {% trans "To" %}: {{
+                            log.to_desk|default:"-" }}
+                            {% endif %}
+                        </p>
+                        <small>{% trans "By" %}: {{ log.by_user.username }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="col-md-4">
+            <div class="card shadow-sm sticky-top" style="top: 2rem;">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">{% trans "Actions" %}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for field in action_form %}
+                        <div class="mb-3">
+                            {% if field.name == 'action' %}
+                            <label class="form-label fw-bold">{% trans "Select Action" %}</label>
+                            {% for radio in field %}
+                            <div class="form-check">
+                                {{ radio.tag }}
+                                <label class="form-check-label" for="{{ radio.id_for_label }}">
+                                    {{ radio.choice_label }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                            {% else %}
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% endif %}
+                            {% if field.errors %}
+                            <div class="text-danger small">{{ field.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary">{% trans "Update Status" %}</button>
+                            <a href="{% url 'visit_regn:visit_queue' %}" class="btn btn-outline-secondary mt-2">{% trans
+                                "Back to Queue" %}</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

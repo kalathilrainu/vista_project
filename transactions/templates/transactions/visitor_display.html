@@ -1,0 +1,208 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visitor Display - VISTA</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background-color: #000;
+            padding: 20px;
+            border-bottom: 2px solid #333;
+        }
+
+        .main-call-container {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, #2c2c2c 0%, #1a1a1a 100%);
+        }
+
+        .call-card {
+            background: linear-gradient(135deg, #0d6efd, #0099cc);
+            color: white;
+            border-radius: 30px;
+            padding: 60px 100px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(13, 110, 253, 0.5);
+            animation: pulse-border 2s infinite;
+            min-width: 60%;
+        }
+
+        .token-label {
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            opacity: 0.9;
+        }
+
+        .token-value {
+            font-size: 8rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin: 20px 0;
+            text-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .desk-label {
+            font-size: 3rem;
+            font-weight: 400;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px 30px;
+            border-radius: 50px;
+            display: inline-block;
+        }
+
+        .history-bar {
+            height: 15vh;
+            background-color: #111;
+            border-top: 1px solid #333;
+            display: flex;
+            align-items: center;
+            padding: 0 40px;
+            overflow-x: auto;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            background: #222;
+            border-radius: 10px;
+            padding: 10px 20px;
+            margin-right: 20px;
+            border-left: 5px solid #666;
+            min-width: 200px;
+        }
+
+        .h-token {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .h-desk {
+            font-size: 1rem;
+            color: #aaa;
+        }
+
+        @keyframes pulse-border {
+            0% {
+                box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 20px rgba(13, 110, 253, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(13, 110, 253, 0);
+            }
+        }
+
+        #empty-state {
+            color: #555;
+            font-size: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header d-flex justify-content-between align-items-center">
+        <h2 class="m-0 text-white fw-bold">Office Visitor Display</h2>
+        <span class="badge bg-secondary" id="clock">00:00</span>
+    </div>
+
+    <div class="main-call-container">
+        <div id="active-call" class="call-card d-none">
+            <div class="token-label">Now Calling</div>
+            <div class="token-value" id="current-token">--</div>
+            <div class="desk-label" id="current-desk">--</div>
+        </div>
+        <div id="empty-state">
+            Waiting for next visitor...
+        </div>
+    </div>
+
+    <div class="history-bar" id="history-container">
+        <!-- History items -->
+    </div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString();
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        let lastToken = null;
+
+        function fetchCalls() {
+            fetch('/transactions/api/latest-calls/')
+                .then(response => response.json())
+                .then(data => {
+                    const calls = data.calls;
+                    if (calls.length > 0) {
+                        const top = calls[0];
+
+                        // Main Display
+                        document.getElementById('current-token').innerText = top.token;
+                        document.getElementById('current-desk').innerText = "Please go to " + top.desk;
+
+                        document.getElementById('active-call').classList.remove('d-none');
+                        document.getElementById('empty-state').classList.add('d-none');
+
+                        // Audio Chime if token changed
+                        if (lastToken !== top.token) {
+                            playChime();
+                            lastToken = top.token;
+                        }
+
+                        // History
+                        const historyHtml = calls.slice(1).map(c => `
+                        <div class="history-item">
+                            <span class="h-token">${c.token}</span>
+                            <span class="h-desk">${c.desk}</span>
+                        </div>
+                    `).join('');
+                        document.getElementById('history-container').innerHTML = historyHtml;
+
+                    } else {
+                        document.getElementById('active-call').classList.add('d-none');
+                        document.getElementById('empty-state').classList.remove('d-none');
+                    }
+                })
+                .catch(err => console.error("Polling error:", err));
+        }
+
+        function playChime() {
+            // Simple beep logic using AudioContext or just console for now (browsers block autoplay usually)
+            // Ideally use a dedicated chime file
+            // var audio = new Audio('/static/audio/chime.mp3'); 
+            // audio.play().catch(e => console.log('Autoplay blocked'));
+        }
+
+        // Poll every 2 seconds
+        setInterval(fetchCalls, 2000);
+        fetchCalls();
+    </script>
+</body>
+
+</html>

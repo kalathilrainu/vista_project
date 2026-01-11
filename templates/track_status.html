@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Track Status | VISTA{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 40px; min-height: 80vh;">
+
+    <!-- Back Button -->
+    <div class="row justify-content-center mb-3">
+        <div class="col-md-8 col-lg-6">
+            <a href="{% url 'landing' %}" class="text-decoration-none text-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back to Home
+            </a>
+        </div>
+    </div>
+
+    <!-- Search Box Section -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0" style="background: rgba(255, 255, 255, 0.95); border-radius: 15px;">
+                <div class="card-body p-4 text-center">
+                    <h4 class="mb-3 text-secondary">Track Status</h4>
+                    <form action="{% url 'track_status' %}" method="get" class="d-flex">
+                        <input type="text" name="q" value="{{ query }}" class="form-control me-2"
+                            placeholder="Enter Token or File Number..." style="border-radius: 10px;" required>
+                        <button type="submit" class="btn btn-primary"
+                            style="border-radius: 10px; padding: 0 30px;">Search</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <!-- Results Section -->
+    {% if query %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            {% if result %}
+
+            {% if result.type == 'Multiple Matches' %}
+            <div class="card shadow border-0 mb-4" style="border-radius: 15px;">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle-fill me-2"></i>Multiple Files Found</h5>
+                </div>
+                <div class="card-body">
+                    <p>We found {{ result.count }} files with the number <strong>"{{ query }}"</strong>. Please verify
+                        your Office.</p>
+                    <div class="list-group">
+                        {% for match in result.matches %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1">{{ match.ref }}</h5>
+                                <small class="text-muted"><i class="bi bi-building me-1"></i>{{ match.office }}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-primary rounded-pill mb-1">{{ match.status }}</span>
+                                <small class="d-block text-muted">{{ match.date|date:"d M Y" }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            {% else %}
+            <!-- Primary Result Card (Reverted to Original Style) -->
+            <div class="card shadow border-0 mb-4" style="border-radius: 15px; overflow: hidden;">
+                <div class="card-header text-white"
+                    style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-search me-2"></i>SearchResult found</span>
+                        <span class="badge bg-light text-dark">{{ result.type }}</span>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-2" style="color: #2a5298; font-weight: bold;">{{ result.ref }}</h2>
+                    <p class="text-center text-muted mb-4">Reference Number</p>
+
+                    <!-- Show Office Name -->
+                    <div class="text-center mb-3">
+                        <span class="badge bg-primary text-white">
+                            <i class="bi bi-building me-1"></i>
+                            {% if result.office %}{{ result.office }}{% else %}General Office{% endif %}
+                        </span>
+                    </div>
+
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <h6 class="text-secondary text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px;">
+                                Current Status</h6>
+                            <h5
+                                class="{% if 'Completed' in result.status or 'Closed' in result.status %}text-success{% else %}text-warning{% endif %}">
+                                {{ result.status }}
+                            </h5>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <h6 class="text-secondary text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px;">
+                                Desk</h6>
+                            <h5 class="text-dark">{{ result.location }}</h5>
+                        </div>
+                        <div class="col-12">
+                            <hr>
+                            <small class="text-muted">Registered Date: {{ result.date|date:"d M Y, h:i A" }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Linked Entity Card (Original Style) -->
+            {% if result.linked_ref %}
+            <div class="card shadow-sm border-0" style="border-radius: 15px; background: #f8f9fa;">
+                <div class="card-body p-4">
+                    <h5 class="text-secondary mb-3"><i class="bi bi-link-45deg me-2"></i>Associated Record</h5>
+                    <div class="d-flex align-items-center justify-content-between flex-wrap">
+                        <div>
+                            <span class="badge bg-secondary mb-1">{{ result.linked_type }}</span>
+                            <h4 class="mb-0">{{ result.linked_ref }}</h4>
+                        </div>
+                        <div class="text-end mt-2 mt-sm-0">
+                            <small class="text-muted d-block">Status</small>
+                            <span class="fw-bold topic-text">{{ result.linked_status }}</span>
+                        </div>
+                        <div class="text-end ms-4 mt-2 mt-sm-0">
+                            <small class="text-muted d-block">Location</small>
+                            <span class="fw-bold">{{ result.linked_location }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% endif %}
+
+            {% else %}
+            <!-- Not Found State -->
+            <div class="alert alert-warning text-center shadow-sm" role="alert" style="border-radius: 15px;">
+                <h4 class="alert-heading"><i class="bi bi-exclamation-circle me-2"></i>No Record Found</h4>
+                <p>We could not find any Token or File matching <strong>"{{ query }}"</strong>.</p>
+                <hr>
+                <p class="mb-0">Please check the number and try again, or contact the help desk.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

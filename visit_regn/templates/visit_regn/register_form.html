@@ -1,0 +1,353 @@
+{% load i18n %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visitor Registration | VISTA</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Merriweather:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'visit_regn/css/kiosk_v2.css' %}">
+
+    <style>
+        /* Local overrides for the registration page */
+        body.kiosk-mode {
+            /* VISTA Green Professional Gradient */
+            background: linear-gradient(135deg, #1B5E20 0%, #16a34a 100%);
+            padding: 20px;
+            overflow-y: auto;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            color: #1a202c;
+        }
+
+        .regn-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            align-self: center;
+        }
+
+        .kiosk-card {
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            /* Enhanced Glassmorphism Effect */
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .kiosk-card-header {
+            background: rgba(255, 255, 255, 0.6);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 2.5rem 2rem 1.5rem;
+            text-align: center;
+        }
+
+        .kiosk-card-header h3 {
+            margin: 0;
+            color: #1B5E20;
+            /* Dark Green */
+            /* Slate 800 */
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            font-size: 1.8rem;
+        }
+
+        .kiosk-btn-back {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            z-index: 10;
+        }
+
+        .kiosk-btn-back .btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            backdrop-filter: blur(4px);
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .kiosk-btn-back .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .form-label {
+            color: #166534;
+            /* Green 700 */
+            /* Slate 600 */
+            font-weight: 600 !important;
+            letter-spacing: 0.02em;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            padding: 14px;
+            border: 1px solid #cbd5e1;
+            background-color: #f8fafc;
+            font-size: 1rem;
+            color: #334155;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: #16a34a;
+            /* Green 600 */
+            background-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+            /* Green Shadow */
+            outline: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1B5E20 0%, #16a34a 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 16px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+            box-shadow: 0 4px 6px rgba(27, 94, 32, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #16a34a 0%, #1B5E20 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px rgba(27, 94, 32, 0.3);
+        }
+
+        .btn-link {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .btn-link:hover {
+            color: #334155;
+        }
+
+        .credits-text {
+            color: rgba(255, 255, 255, 0.6);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            font-weight: 400;
+        }
+    </style>
+</head>
+
+<body class="kiosk-mode d-flex justify-content-center align-items-center">
+
+    {% if form.mobile.errors %}
+    <div class="alert alert-danger shadow-lg position-fixed top-0 end-0 m-4 d-flex align-items-center" role="alert"
+        style="z-index: 1050; border-radius: 12px; border: none; background: rgba(220, 53, 69, 0.95); color: white; backdrop-filter: blur(10px); max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important;">
+        <i class="bi bi-exclamation-triangle-fill me-3 fs-3"></i>
+        <div>
+            <div class="fw-bold fs-5">Invalid Mobile Number</div>
+            <div class="small opacity-90">Please check the number entered.</div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="kiosk-btn-back">
+        <a href="{{ back_url|default:'/visit/kiosk/' }}" class="btn btn-sm">
+            &larr; {% trans "Back to Home" %}
+        </a>
+    </div>
+
+    <div class="regn-container py-5">
+        <div class="card kiosk-card">
+            <div class="kiosk-card-header">
+                <h3>
+                    {% if mode == 'QR' %}
+                    {% trans "QR Registration" %}
+                    {% else %}
+                    {% trans "Visitor Registration" %}
+                    {% endif %}
+                </h3>
+                <p class="text-muted small mb-0 mt-3" style="font-size: 1rem;">Please fill in your details below</p>
+            </div>
+            <div class="card-body p-5">
+                {% if qr_scan_mode %}
+                <div class="alert alert-info text-center border-0 p-4 mb-4">
+                    <i class="bi bi-info-circle-fill"></i> {% trans "Camera view would appear here." %}
+                </div>
+                {% endif %}
+
+                <form method="post" data-check-url="{% url 'filing:check_file_status' %}"
+                    data-has-mobile-errors="{% if form.mobile.errors %}true{% else %}false{% endif %}">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-4">
+                        <label for="{{ field.id_for_label }}" class="form-label text-uppercase small fw-bold">
+                            {{ field.label }}
+                        </label>
+                        {{ field }}
+                        {% if field.help_text %}
+                        <div class="form-text text-muted small mt-1">{{ field.help_text }}</div>
+                        {% endif %}
+                        {% if field.errors %}
+                        <div class="invalid-feedback d-block mt-1">{{ field.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    <div class="d-grid gap-3 mt-5">
+                        <button type="submit" class="btn btn-primary btn-lg shadow-sm">{% trans "Get Token" %}</button>
+                        <a href="{{ back_url|default:'/visit/kiosk/' }}"
+                            class="btn btn-link text-muted text-decoration-none">{% trans "Cancel" %}</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="text-center mt-4 credits-text small">
+            <p>&copy; {% now "Y" %} VISTA &#8226; Dept of Revenue, Govt of Kerala</p>
+        </div>
+    </div>
+
+    <!-- File Status Modal -->
+    <div class="modal fade" id="fileStatusModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+                <div class="modal-header bg-danger border-0 text-white"
+                    style="border-top-left-radius: 20px; border-top-right-radius: 20px;">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-x-circle-fill me-2"></i>File Status: CLOSED</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <p class="mb-4 text-muted">This file is already processed and closed. You do not need to meet staff.
+                    </p>
+
+                    <div class="card bg-light border-0 p-3 mb-4 rounded-3 text-start">
+                        <div class="row g-2">
+                            <div class="col-12 border-bottom pb-2 mb-2">
+                                <span class="small text-uppercase text-muted fw-bold d-block">File Number</span>
+                                <span class="h5 fw-bold text-dark" id="closedFileNumber">--</span>
+                            </div>
+                            <div class="col-6">
+                                <span class="small text-uppercase text-muted fw-bold d-block">Closed Date</span>
+                                <span class="fw-bold text-dark" id="closedDate">--</span>
+                            </div>
+                            <div class="col-6">
+                                <span class="small text-uppercase text-muted fw-bold d-block">Reply Sent To</span>
+                                <span class="fw-bold text-dark" id="closedReply">--</span>
+                            </div>
+                            <div class="col-12 mt-2">
+                                <span class="small text-uppercase text-muted fw-bold d-block">Closure Remarks</span>
+                                <span class="text-dark" id="closedRemarks">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'visit_regn:kiosk_home' %}" class="btn btn-dark btn-lg rounded-pill shadow-sm">
+                            <i class="bi bi-check-lg me-2"></i>Close & Exit
+                        </a>
+
+                        <div class="text-center mt-3">
+                            <span class="small text-muted d-block mb-2">Still need to talk to staff?</span>
+                            <button type="button" id="forceGenerateTokenBtn"
+                                class="btn btn-outline-danger btn-sm rounded-pill px-4">
+                                Generate Token Anyway
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts if needed (Bootstrap JS usually) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.querySelector('form');
+            if (form && form.dataset.hasMobileErrors === 'true') {
+                const mobileInput = document.getElementById('id_mobile');
+                if (mobileInput) {
+                    mobileInput.focus();
+                    mobileInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+            // File Status Check & Form Submission Intercept
+            const refInput = document.getElementById('id_reference_number');
+            // form already defined above
+            const statusModalEl = document.getElementById('fileStatusModal');
+            let statusModal = null;
+            if (statusModalEl) {
+                statusModal = new bootstrap.Modal(statusModalEl);
+            }
+
+            if (refInput && form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault(); // Always stop first
+
+                    const refNum = refInput.value.trim();
+                    if (!refNum) {
+                        // No ref number, just submit
+                        form.submit();
+                        return;
+                    }
+
+                    // Check status
+                    const checkUrl = form.getAttribute('data-check-url');
+                    fetch(`${checkUrl}?ref=${encodeURIComponent(refNum)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.found && data.status === 'CLOSED') {
+                                // Show Warning
+                                document.getElementById('closedFileNumber').textContent = data.file_number;
+                                document.getElementById('closedDate').textContent = data.closed_details.closed_date || '-';
+                                document.getElementById('closedReply').textContent = data.closed_details.reply_to || '-';
+                                document.getElementById('closedRemarks').textContent = data.closed_details.remarks || 'No remarks';
+                                statusModal.show();
+                            } else {
+                                // All good, proceed
+                                form.submit();
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error checking file status:', error);
+                            // On error, better to let them proceed than block? 
+                            // Or block? Let's proceed.
+                            form.submit();
+                        });
+                });
+
+                // Handle "Generate Token Anyway" button in modal
+                const forceBtn = document.getElementById('forceGenerateTokenBtn');
+                if (forceBtn) {
+                    forceBtn.addEventListener('click', function () {
+                        statusModal.hide();
+                        form.submit();
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

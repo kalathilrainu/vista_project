@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} | VISTA{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 4rem 1.5rem; max-width: 800px;">
+    <!-- Breadcrumb -->
+    <div style="margin-bottom: 2rem;">
+        <a href="{% url 'userassignment_list' %}" style="color: var(--brand-primary); font-weight: 600;">&larr; Back to
+            Assignments</a>
+    </div>
+
+    <div
+        style="background: #fff; padding: 2.5rem; border-radius: 12px; box-shadow: var(--shadow-lg); border-top: 4px solid var(--brand-gold);">
+        <h2 style="font-family: 'Merriweather', serif; margin-bottom: 2rem; color: var(--text-main);">{{ title }}</h2>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+
+                <div style="grid-column: span 2;">
+                    <label class="form-label" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">System
+                        User</label>
+                    {{ form.user }}
+                    {% if form.user.errors %}
+                    <div style="color: #ef4444; font-size: 0.85rem; margin-top: 0.25rem;">{{ form.user.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div style="grid-column: span 2;">
+                    <label class="form-label" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Staff
+                        Member</label>
+                    {{ form.staff_member }}
+                    {% if form.staff_member.errors %}
+                    <div style="color: #ef4444; font-size: 0.85rem; margin-top: 0.25rem;">{{ form.staff_member.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="form-label" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">From
+                        Date</label>
+                    {{ form.from_date }}
+                    {% if form.from_date.errors %}
+                    <div style="color: #ef4444; font-size: 0.85rem; margin-top: 0.25rem;">{{ form.from_date.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="form-label" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">To
+                        Date</label>
+                    {{ form.to_date }}
+                    {% if form.to_date.errors %}
+                    <div style="color: #ef4444; font-size: 0.85rem; margin-top: 0.25rem;">{{ form.to_date.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <div style="margin-top: 2.5rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                <a href="{% url 'userassignment_list' %}" class="btn-outline-hero"
+                    style="color: var(--text-main); border-color: var(--border-color);">Cancel</a>
+                <button type="submit" class="btn-primary-hero">Save Assignment</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

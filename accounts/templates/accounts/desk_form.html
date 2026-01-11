@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} | VISTA{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 4rem 1.5rem; max-width: 800px;">
+    <!-- Breadcrumb -->
+    <div style="margin-bottom: 2rem;">
+        <a href="{% url 'desk_list' %}" style="color: var(--brand-primary); font-weight: 600;">&larr; Back to Desks</a>
+    </div>
+
+    <div
+        style="background: #fff; padding: 2.5rem; border-radius: 12px; box-shadow: var(--shadow-lg); border-top: 4px solid var(--brand-gold);">
+        <h2 style="font-family: 'Merriweather', serif; margin-bottom: 2rem; color: var(--text-main);">{{ title }}</h2>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
+
+                <div>
+                    <label class="form-label" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Desk
+                        Name</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                    <div style="color: #ef4444; font-size: 0.85rem; margin-top: 0.25rem;">{{ form.name.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="form-label" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Assigned
+                        Office</label>
+                    {{ form.office }}
+                    {% if form.office.errors %}
+                    <div style="color: #ef4444; font-size: 0.85rem; margin-top: 0.25rem;">{{ form.office.errors }}</div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <div style="margin-top: 2.5rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                <a href="{% url 'desk_list' %}" class="btn-outline-hero"
+                    style="color: var(--text-main); border-color: var(--border-color);">Cancel</a>
+                <button type="submit" class="btn-primary-hero">Save Desk</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

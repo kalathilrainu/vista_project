@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{% trans "Visit Queue" %} - {{ user.office.name }}</h1>
+        <div>
+            <a href="?status=WAITING"
+                class="btn btn-outline-primary {% if request.GET.status == 'WAITING' %}active{% endif %}">{% trans
+                "Waiting" %}</a>
+            <a href="?status=ROUTED"
+                class="btn btn-outline-info {% if request.GET.status == 'ROUTED' %}active{% endif %}">{% trans "Routed"
+                %}</a>
+            <a href="{% url 'visit_regn:visit_queue' %}" class="btn btn-outline-secondary">{% trans "All" %}</a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>{% trans "Token" %}</th>
+                        <th>{% trans "Name" %}</th>
+                        <th>{% trans "Purpose" %}</th>
+                        <th>{% trans "Status" %}</th>
+                        <th>{% trans "Issue Time" %}</th>
+                        <th>{% trans "Desk" %}</th>
+                        <th>{% trans "Action" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for visit in visits %}
+                    <tr>
+                        <td class="fw-bold">{{ visit.token }}</td>
+                        <td>
+                            {{ visit.name|default:"-" }}
+                            {% if visit.mobile %}<br><small class="text-muted">{{ visit.mobile }}</small>{% endif %}
+                        </td>
+                        <td>{{ visit.purpose.name }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if visit.status == 'WAITING' %}bg-warning text-dark
+                                {% elif visit.status == 'ROUTED' %}bg-info text-dark
+                                {% elif visit.status == 'IN_PROGRESS' %}bg-primary
+                                {% elif visit.status == 'COMPLETED' %}bg-success
+                                {% else %}bg-secondary{% endif %}">
+                                {{ visit.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ visit.token_issue_time|date:"H:i" }}</td>
+                        <td>{{ visit.current_desk.name|default:"-" }}</td>
+                        <td>
+                            <a href="{% url 'visit_regn:visit_detail' visit.pk %}" class="btn btn-sm btn-primary">
+                                {% trans "View / Action" %}
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">{% trans "No visits found in queue." %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="card-footer">
+            <nav>
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link"
+                            href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+                    {% endif %}
+                    <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{
+                            page_obj.paginator.num_pages }}</span></li>
+                    {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

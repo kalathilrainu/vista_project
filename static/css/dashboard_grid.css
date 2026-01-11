@@ -1,0 +1,129 @@
+/* Dashboard 5x4 Grid Styles */
+.dashboard-card {
+    display: flex;
+    height: 100px;
+    /* Fixed height for uniformity */
+    border: 1px solid #c3c4ca !important;
+    /* Visible gray border */
+    border-radius: 8px;
+    /* Slightly more rounded */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+    /* Stronger Shadow */
+    overflow: hidden;
+    transition: all 0.2s cubic-bezier(.25, .8, .25, 1);
+    background-color: #fff;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    border-left: 6px solid transparent !important;
+    /* Thicker theme border */
+    margin-bottom: 5px;
+    /* Spacing */
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22) !important;
+    text-decoration: none;
+    color: inherit;
+    z-index: 10;
+}
+
+.card-icon-container {
+    width: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.card-content {
+    flex-grow: 1;
+    padding: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: transparent;
+    /* Allow parent background to show */
+}
+
+.card-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #5a5c69;
+    margin-bottom: 0.25rem;
+    line-height: 1.2;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.card-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2e2e2e;
+}
+
+.cursor-default {
+    cursor: default;
+}
+
+/* Theme Colors - All Green Variations (As per User Request) */
+/* Avoiding: #1B5E20 (Navbar), #2E7D32 (Menu), #16a34a (Header) */
+
+/* Variation 1: Mint / Emerald (Used for: Cyan, Blue, Indigo) */
+.card-theme-cyan,
+.card-theme-blue,
+.card-theme-indigo {
+    border-left-color: #34d399 !important;
+    /* Emerald 400 */
+    background-color: #ecfdf5;
+    /* Emerald 50 */
+}
+
+.bg-cyan,
+.bg-blue,
+.bg-indigo {
+    background-color: #34d399;
+}
+
+/* Variation 2: Lime / Apple (Used for: Red, Orange) */
+.card-theme-red,
+.card-theme-orange {
+    border-left-color: #84cc16 !important;
+    /* Lime 500 */
+    background-color: #f7fee7;
+    /* Lime 50 */
+}
+
+.bg-red,
+.bg-orange {
+    background-color: #84cc16;
+}
+
+/* Variation 3: Teal / Seafoam (Used for: Green, Teal) */
+.card-theme-green,
+.card-theme-teal {
+    border-left-color: #2dd4bf !important;
+    /* Teal 400 */
+    background-color: #f0fdfa;
+    /* Teal 50 */
+}
+
+.bg-green,
+.bg-teal {
+    background-color: #2dd4bf;
+}
+
+/* Variation 4: Subtle Sage (Used for: Secondary/Placeholders) */
+.card-theme-secondary {
+    border-left-color: #a3e635 !important;
+    /* Lime 400 */
+    background-color: #fcfff5;
+}
+
+.bg-secondary {
+    background-color: #a3e635;
+}

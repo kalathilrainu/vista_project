@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Service Analysis - VISTA Reports{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <!-- Green Header with Back Button -->
+    <div class="dashboard-header p-3 rounded text-white shadow-sm mb-4 d-flex justify-content-between align-items-center"
+        style="background-color: var(--brand-primary);">
+        <h1 class="h3 m-0 fw-bold">Service Analysis</h1>
+        <div>
+            <a href="{% url 'mis:dashboard' %}" class="btn btn-sm btn-outline-light fw-bold">
+                <i class="bi bi-arrow-left me-1"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Table Column -->
+        <div class="col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Service Breakdown</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Service / Purpose</th>
+                                    <th>Total Visits</th>
+                                    <th>Completed</th>
+                                    <th>Avg Handling Time</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in analysis_data %}
+                                <tr>
+                                    <td>{{ item.purpose__name }}</td>
+                                    <td><strong>{{ item.total }}</strong></td>
+                                    <td>{{ item.completed }}</td>
+                                    <td>
+                                        {% if item.avg_wait %}
+                                        {{ item.avg_wait|time:"i" }} min
+                                        {% else %}
+                                        -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4">No data available.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart Column -->
+        <div class="col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Distribution</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie pt-4 pb-2">
+                        <canvas id="servicePieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var ctx = document.getElementById('servicePieChart').getContext('2d');
+
+        // Prepare data from Django context
+        var labels = [{% for item in analysis_data %}"{{ item.purpose__name }}", {% endfor %}];
+    var data = [{% for item in analysis_data %}{ { item.total } }, {% endfor %}];
+
+    var servicePieChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796'],
+                hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf', '#dda20a', '#be2617', '#60616f'],
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            tooltips: {
+                backgroundColor: "rgb(255,255,255)",
+                bodyFontColor: "#858796",
+                borderColor: '#dddfeb',
+                borderWidth: 1,
+                xPadding: 15,
+                yPadding: 15,
+                displayColors: false,
+                caretPadding: 10,
+            },
+            legend: {
+                display: true,
+                position: 'bottom'
+            },
+        },
+    });
+});
+</script>
+{% endblock %}

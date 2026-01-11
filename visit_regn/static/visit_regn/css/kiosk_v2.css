@@ -1,0 +1,301 @@
+@charset "UTF-8";
+
+/* Import fonts from Google Fonts (same as Landing Page) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Merriweather:wght@400;700&display=swap');
+
+:root {
+    /* Brand Colors (Unified with Landing Page) */
+    --brand-dark: #1B5E20;
+    --brand-primary: #16a34a;
+    --brand-gold: #C5A55B;
+    --brand-gold-dark: #9f8343;
+    --text-main: #111827;
+    --text-muted: #6B7280;
+    --bg-white: #ffffff;
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --glass-shadow: 0 8px 32px 0 rgba(27, 94, 32, 0.15);
+}
+
+body.kiosk-mode {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    background: url('../../images/lighthouse.jpg') no-repeat center center / cover;
+    position: relative;
+    color: var(--text-main);
+}
+
+/* Dark Overlay for background readability */
+body.kiosk-mode::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(27, 94, 32, 0.6) 100%);
+    z-index: 0;
+}
+
+/* Main Container */
+.kiosk-container {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+/* Glassmorphism Main Card */
+.kiosk-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    width: 100%;
+    max-width: 1000px;
+    padding: 3rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Header Section */
+.kiosk-header {
+    margin-bottom: 1rem;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+    padding-bottom: 1.5rem;
+}
+
+.kiosk-logo-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.kiosk-logo-img {
+    height: 80px;
+    width: auto;
+}
+
+.kiosk-office-name h1 {
+    font-family: 'Merriweather', serif;
+    font-size: 2.2rem;
+    color: var(--brand-dark);
+    margin: 0;
+    font-weight: 700;
+}
+
+.kiosk-office-name p {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin: 0.2rem 0 0;
+    font-weight: 500;
+}
+
+/* Action Grid */
+.kiosk-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    flex-grow: 1;
+    align-content: center;
+}
+
+/* Interactive Action Cards */
+.action-card {
+    background: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    padding: 2.5rem 1.5rem;
+    text-decoration: none;
+    color: var(--text-main);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.action-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    border-color: var(--brand-primary);
+}
+
+.action-card::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--brand-gold);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.action-card:hover::after {
+    transform: scaleX(1);
+}
+
+.card-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    background: rgba(22, 163, 74, 0.1);
+    /* Brand Primary Light */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+}
+
+.action-card:hover .card-icon-wrapper {
+    background: var(--brand-primary);
+}
+
+.card-icon {
+    width: 40px;
+    height: 40px;
+    filter: invert(27%) sepia(21%) saturate(2375%) hue-rotate(97deg) brightness(94%) contrast(89%);
+    /* Brand Dark Color */
+    transition: filter 0.3s;
+}
+
+.action-card:hover .card-icon {
+    filter: invert(100%) brightness(200%);
+    /* White */
+}
+
+.card-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--brand-dark);
+}
+
+/* Footer & Logout */
+.kiosk-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 1rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.logout-container form {
+    margin: 0;
+}
+
+.btn-logout {
+    background: none;
+    border: 2px solid #dc3545;
+    color: #dc3545;
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+}
+
+.btn-logout:hover {
+    background: #dc3545;
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+}
+
+/* Search Bar Styles */
+.kiosk-search-section {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.search-bar-container {
+    width: 100%;
+    max-width: 600px;
+    background: #fff;
+    padding: 0.5rem;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.search-bar-container:focus-within {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 30px rgba(22, 163, 74, 0.15);
+    /* Greenish shadow */
+    border-color: var(--brand-primary);
+}
+
+.kiosk-search-input {
+    flex: 1;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    font-size: 1.1rem;
+    outline: none;
+    background: transparent;
+    border-radius: 50px;
+    color: var(--text-main);
+}
+
+.kiosk-search-input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.8;
+}
+
+.btn-kiosk-search {
+    background: var(--brand-dark);
+    color: #fff;
+    border: none;
+    padding: 0.8rem 2.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    margin-right: 2px;
+}
+
+.btn-kiosk-search:hover {
+    background: var(--brand-primary);
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.kiosk-card {
+    animation: fadeIn 0.8s ease-out;
+}

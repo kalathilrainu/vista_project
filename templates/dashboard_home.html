@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard | Staff | Village Office{% endblock %}
+
+{% block content %}
+<!-- Dashboard Header -->
+<div class="dashboard-header mb-4 p-3 rounded text-white shadow-sm" style="background-color: var(--brand-primary);">
+    <h4 class="m-0 fw-bold"><i class="bi bi-speedometer2 me-2"></i>DASHBOARD</h4>
+</div>
+
+<!-- Dashboard Grid (Full Width of Content Area) -->
+<div class="dashboard-grid cards-grid-4">
+    <!-- Module: User Management (Admin Only) -->
+    {% if user.is_superuser or user.role == "ADMIN" or user.role == "SUPER_ADMIN" %}
+    <a href="/accounts/management/" class="dash-card">
+        <div class="dash-icon">
+            <img src="{% static 'images/users.svg' %}" alt="User Mgmt">
+        </div>
+        <h3>User Management</h3>
+        <p>Manage staff, roles, and assignments.</p>
+        <span class="dash-link">Open &rarr;</span>
+    </a>
+    {% endif %}
+
+    <!-- ROW 1, CARD 1: Visit Queue (Staff) -->
+    <a href="{% url 'routing:visit_queue' %}" class="dash-card position-relative">
+        <div class="dash-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+        </div>
+        {% if kpis.visit_queue > 0 %}
+        <span class="badge bg-danger rounded-pill position-absolute top-0 end-0 m-3 fs-3">
+            {{ kpis.visit_queue }}
+        </span>
+        {% else %}
+        <span class="badge bg-light text-muted border rounded-pill position-absolute top-0 end-0 m-3 fs-3">
+            0
+        </span>
+        {% endif %}
+        <h3>Visit Queue</h3>
+        <p>Manage tokens and desk assignments.</p>
+        <span class="dash-link">Open &rarr;</span>
+    </a>
+
+    <!-- ROW 1, CARD 2: My Desk -->
+    <a href="{% url 'routing:desk_queue' %}" class="dash-card position-relative">
+        <div class="dash-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z">
+                </path>
+            </svg>
+        </div>
+        {% if kpis.my_desk > 0 %}
+        <span class="badge bg-warning text-dark rounded-pill position-absolute top-0 end-0 m-3 fs-3">
+            {{ kpis.my_desk }}
+        </span>
+        {% else %}
+        <span class="badge bg-light text-muted border rounded-pill position-absolute top-0 end-0 m-3 fs-3">
+            0
+        </span>
+        {% endif %}
+        <h3>My Desk Queue</h3>
+        <p>Tasks assigned to my desk.</p>
+        <span class="dash-link">Open &rarr;</span>
+    </a>
+
+    <!-- ROW 1, CARD 3: Office Files -->
+    <a href="{% url 'filing:file_list' %}" class="dash-card position-relative">
+        <div class="dash-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+        </div>
+        {% if kpis.office_files > 0 %}
+        <span class="badge bg-info text-dark rounded-pill position-absolute top-0 end-0 m-3 fs-3">
+            {{ kpis.office_files }}
+        </span>
+        {% else %}
+        <span class="badge bg-light text-muted border rounded-pill position-absolute top-0 end-0 m-3 fs-3">
+            0
+        </span>
+        {% endif %}
+        <h3>Office Files</h3>
+        <p>Manage long-term files.</p>
+        <span class="dash-link">Open &rarr;</span>
+    </a>
+
+    <!-- ROW 2, CARD 1: Visitor Kiosk -->
+    <a href="{% url 'visit_regn:manual_register' %}" class="dash-card">
+        <div class="dash-icon">
+            <!-- Icon placeholder -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+        </div>
+        <h3>Visitor Kiosk</h3>
+        <p>Register new visitors (Kiosk Mode).</p>
+        <span class="dash-link">Open &rarr;</span>
+    </a>
+
+    <!-- ROW 2, CARD 2: MIS / Reports -->
+    <a href="{% url 'mis:dashboard' %}" class="dash-card">
+        <div class="dash-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+                <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
+            </svg>
+        </div>
+        <h3>MIS & Reports</h3>
+        <p>Office statistics and analytics.</p>
+        <span class="dash-link">Open &rarr;</span>
+    </a>
+
+    <!-- ROW 2, CARD 3: Under Construction -->
+    <a href="#" class="dash-card opacity-75">
+        <div class="dash-icon bg-secondary">
+            <i class="bi bi-cone-striped text-white fs-4"></i>
+        </div>
+        <h3>Under Construction</h3>
+        <p>Coming Soon...</p>
+        <span class="dash-link">Open &rarr;</span>
+    </a>
+
+    <!-- ROW 2, CARD 4: Under Construction (Placeholder 1) -->
+    <a href="#" class="dash-card opacity-75">
+        <div class="dash-icon bg-secondary">
+            <i class="bi bi-cone-striped text-white fs-4"></i>
+        </div>
+        <h3>Under Construction</h3>
+        <p>Future Module 1</p>
+        <span class="dash-link">Open &rarr;</span>
+    </a>
+
+    <!-- ROW 2, CARD 5: Under Construction (Placeholder 2) -->
+    <a href="#" class="dash-card opacity-75">
+        <div class="dash-icon bg-secondary">
+            <i class="bi bi-cone-striped text-white fs-4"></i>
+        </div>
+        <h3>Under Construction</h3>
+        <p>Future Module 2</p>
+        <span class="dash-link">Open &rarr;</span>
+    </a>
+
+
+
+</div>
+
+<!-- Developed By Card -->
+<div class="card mt-4 border-0 shadow-sm" style="background-color: #dcfce7;">
+    <div class="card-body py-3">
+        <h6 class="fw-bold mb-1">Developed By</h6>
+        <div class="d-flex align-items-center">
+            <span class="fs-5 fw-bold">Joseph Rainu KT, Village Officer, Nattakam</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

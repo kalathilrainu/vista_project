@@ -1,0 +1,23 @@
+[
+    {
+        "model": "visit_regn.purpose",
+        "pk": 1,
+        "fields": {
+            "name": "General Enquiry"
+        }
+    },
+    {
+        "model": "visit_regn.purpose",
+        "pk": 2,
+        "fields": {
+            "name": "Certificate Application"
+        }
+    },
+    {
+        "model": "visit_regn.purpose",
+        "pk": 3,
+        "fields": {
+            "name": "Tax Payment"
+        }
+    }
+]

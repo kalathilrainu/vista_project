@@ -1,0 +1,21 @@
+<tr>
+    <td>
+        <a href="{% url 'filing:file_detail' object.pk %}"><strong>{{ object.file_number }}</strong></a>
+    </td>
+    <td>{{ object.visit.name|default:"-" }}</td>
+    <td>{{ object.get_interim_status_display }}</td>
+    <td>
+        {% if object.status == 'CLOSED' %}
+        <span class="badge bg-success">Closed</span>
+        {% else %}
+        <span class="badge bg-primary">Pending</span>
+        {% endif %}
+    </td>
+    <td>
+        {% if object.desk %}
+        {{ object.desk.name }}
+        {% else %}
+        <span class="text-muted">Unassigned</span>
+        {% endif %}
+    </td>
+</tr>

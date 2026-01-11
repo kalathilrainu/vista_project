@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} | VISTA{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 4rem 1.5rem; max-width: 800px;">
+    <!-- Breadcrumb -->
+    <div style="margin-bottom: 2rem;">
+        <a href="{% url 'staff_list' %}" style="color: var(--brand-primary); font-weight: 600;">&larr; Back to Staff
+            List</a>
+    </div>
+
+    <div
+        style="background: #fff; padding: 2.5rem; border-radius: 12px; box-shadow: var(--shadow-lg); border-top: 4px solid var(--brand-gold);">
+        <h2 style="font-family: 'Merriweather', serif; margin-bottom: 2rem; color: var(--text-main);">{{ title }}</h2>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+
+                <div style="grid-column: span 2;">
+                    <label class="form-label" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">PEN
+                        (Permanent Employee Number)</label>
+                    {{ form.pen }}
+                    {% if form.pen.errors %}
+                    <div style="color: #ef4444; font-size: 0.85rem; margin-top: 0.25rem;">{{ form.pen.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div style="grid-column: span 2;">
+                    <label class="form-label" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Full
+                        Name</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                    <div style="color: #ef4444; font-size: 0.85rem; margin-top: 0.25rem;">{{ form.name.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div style="grid-column: span 2;">
+                    <label class="form-label"
+                        style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Designation</label>
+                    {{ form.designation }}
+                    {% if form.designation.errors %}
+                    <div style="color: #ef4444; font-size: 0.85rem; margin-top: 0.25rem;">{{ form.designation.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div style="grid-column: span 2;">
+                    <label class="form-label"
+                        style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Office</label>
+                    {{ form.office }}
+                    {% if form.office.errors %}
+                    <div style="color: #ef4444; font-size: 0.85rem; margin-top: 0.25rem;">{{ form.office.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="form-label" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Date of
+                        Joining</label>
+                    {{ form.date_of_joining }}
+                    {% if form.date_of_joining.errors %}
+                    <div style="color: #ef4444; font-size: 0.85rem; margin-top: 0.25rem;">{{ form.date_of_joining.errors
+                        }}</div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="form-label" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Date of
+                        Transfer</label>
+                    {{ form.date_of_transfer }}
+                    {% if form.date_of_transfer.errors %}
+                    <div style="color: #ef4444; font-size: 0.85rem; margin-top: 0.25rem;">{{
+                        form.date_of_transfer.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div style="grid-column: span 2; display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem;">
+                    {{ form.is_active }}
+                    <label class="form-label" style="font-weight: 600;">Active Staff Member</label>
+                </div>
+
+            </div>
+
+            <div style="margin-top: 2.5rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                <a href="{% url 'staff_list' %}" class="btn-outline-hero"
+                    style="color: var(--text-main); border-color: var(--border-color);">Cancel</a>
+                <button type="submit" class="btn-primary-hero">Save Staff Member</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

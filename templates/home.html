@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Smart Office | VISTA Portal{% endblock %}
+
+{% block content %}
+
+<!-- Professional Hero Section -->
+<section class="hero-section">
+    <div class="container hero-inner">
+        <div class="container hero-inner custom-layout">
+            <!-- 1. Top Section: Title & Subtitle -->
+            <div class="hero-header-section">
+                <h1>Smart Visit Management & File Tracking</h1>
+                <p>Streamlining Village Office operations. Register your visit, track your token, and monitor file
+                    status
+                    efficiently.</p>
+            </div>
+
+            <!-- 2. Middle Section: Search Bar -->
+            <div class="hero-search-section">
+                <div class="search-bar-container">
+                    <form action="{% url 'track_status' %}" method="get"
+                        style="display: flex; width: 100%; align-items: center;">
+                        <input type="text" name="q" placeholder="Track File / Token Status..." class="hero-search-input"
+                            style="border: none; outline: none; flex-grow: 1;">
+                        <button type="submit" class="btn-hero-search">Search</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 3. Bottom Right: Login Box -->
+            <div class="hero-login-section">
+                <div class="hero-login-box dark-glass">
+                    <h3>Login</h3>
+                    <form action="{% url 'landing' %}" method="post">
+                        {% csrf_token %}
+                        <!-- Professional Error Display -->
+                        {% if form.errors %}
+                        <div class="alert alert-danger" role="alert"
+                            style="background: rgba(220, 53, 69, 0.9); border: none; font-size: 0.85rem; padding: 0.5rem 1rem; margin-bottom: 1rem; color: white;">
+                            {% if form.non_field_errors %}
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ form.non_field_errors.0 }}
+                            {% elif form.captcha.errors %}
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i> Math Error: {{ form.captcha.errors.0 }}
+                            {% else %}
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i> Invalid Username or Password.
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        <div class="form-group">
+                            <input type="text" name="username" placeholder="Username" required autocomplete="off">
+                        </div>
+                        <div class="form-group">
+                            <input type="password" name="password" placeholder="Password" required>
+                        </div>
+
+                        <!-- CAPTCHA Field -->
+                        <div class="form-group">
+                            <label for="id_captcha"
+                                style="font-size: 0.9rem; margin-bottom: 0.3rem; display: block; color: rgba(255,255,255,0.9);">
+                                Math Challenge: <strong>{{ captcha_question }}</strong>
+                            </label>
+                            <input type="number" name="captcha" placeholder="Enter Answer" required autocomplete="off">
+                        </div>
+
+                        <input type="hidden" name="next" value="/dashboard/">
+                        <button type="submit" class="btn-login-hero">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats / Quick Info Bar -->
+<div class="quick-stats-bar">
+    <div class="container stats-grid">
+        <div class="stat-item">
+            <span class="stat-num">Real-time</span>
+            <span class="stat-desc">Status Tracking</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-num">Smart</span>
+            <span class="stat-desc">Queue System</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-num">Paperless</span>
+            <span class="stat-desc">File Mgmt</span>
+        </div>
+    </div>
+</div>
+
+<!-- Services Grid -->
+<section id="services" class="section-services">
+    <div class="container">
+        <div class="section-heading">
+            <h2>Department Services</h2>
+            <div class="heading-underline"></div>
+            <p>Select a service to proceed.</p>
+        </div>
+
+        <div class="cards-grid">
+            <!-- Card 1: Visit Registration (Internal) -->
+            <a href="/visits/kiosk/" class="service-card">
+                <div class="card-icon">
+                    <img src="{% static 'images/edit.svg' %}" alt="Register">
+                </div>
+                <h3>Visit Registration</h3>
+                <p>Book a slot or generate a token for your visit.</p>
+                <span class="card-link">Register Now &rarr;</span>
+            </a>
+
+            <!-- Card 2: Live Status (Internal) -->
+            <a href="#" class="service-card">
+                <div class="card-icon">
+                    <img src="{% static 'images/monitor.svg' %}" alt="Token">
+                </div>
+                <h3>Live Token Status</h3>
+                <p>Check the current serving number remotely.</p>
+                <span class="card-link">View Status &rarr;</span>
+            </a>
+
+            <!-- Card 3: File Tracking (Internal) -->
+            <a href="#" class="service-card">
+                <div class="card-icon">
+                    <img src="{% static 'images/mail.svg' %}" alt="Tapal">
+                </div>
+                <h3>File Status Check</h3>
+                <p>Track your submitted file's movement (Tapal).</p>
+                <span class="card-link">Track File &rarr;</span>
+            </a>
+
+            <!-- Card 4: Staff Directory (Internal) -->
+            <a href="#" class="service-card">
+                <div class="card-icon">
+                    <img src="{% static 'images/users.svg' %}" alt="Staff">
+                </div>
+                <h3>Staff Directory</h3>
+                <p>Contact details of Village Officials.</p>
+                <span class="card-link">View Directory &rarr;</span>
+            </a>
+
+            <!-- Card 5: e-District (External) -->
+            <a href="https://edistrict.kerala.gov.in" target="_blank" class="service-card external">
+                <div class="card-icon">
+                    <img src="{% static 'images/help-circle.svg' %}" alt="eDistrict">
+                </div>
+                <h3>e-District Portal</h3>
+                <p>Apply for Income, Nativity & other certificates.</p>
+                <span class="card-link">Go to Portal &nearr;</span>
+            </a>
+
+            <!-- Card 6: Revenue (External) -->
+            <a href="https://revenue.kerala.gov.in" target="_blank" class="service-card external">
+                <div class="card-icon">
+                    <img src="{% static 'images/file-text.svg' %}" alt="Revenue">
+                </div>
+                <h3>Revenue Dept</h3>
+                <p>Pay Land Tax and other revenue services.</p>
+                <span class="card-link">Go to Portal &nearr;</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- News Ticker Bottom -->
+<div class="ticker-wrap">
+    <div class="ticker-heading">Announcements</div>
+    <div class="ticker">
+        {% for announcement in announcements %}
+        <div class="ticker__item">{{ announcement }}</div>
+        {% empty %}
+        <div class="ticker__item">Welcome to the Village Integrated Service & Transaction Application.</div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

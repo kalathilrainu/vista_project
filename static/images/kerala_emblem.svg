@@ -1,0 +1,5 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="45" fill="#FAFBF9" stroke="#2E8B57" stroke-width="2"/>
+  <text x="50" y="55" font-family="sans-serif" font-size="10" text-anchor="middle" fill="#2E8B57">KERALA GOVT</text>
+  <path d="M50 20 L60 40 L40 40 Z" fill="#2E8B57"/>
+</svg>

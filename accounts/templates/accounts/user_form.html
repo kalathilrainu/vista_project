@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} | VISTA{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 4rem 1.5rem; max-width: 800px;">
+    <!-- Breadcrumb -->
+    <div style="margin-bottom: 2rem;">
+        <a href="{% url 'user_list' %}" style="color: var(--brand-primary); font-weight: 600;">&larr; Back to User
+            List</a>
+    </div>
+
+    <div
+        style="background: #fff; padding: 2.5rem; border-radius: 12px; box-shadow: var(--shadow-lg); border-top: 4px solid var(--brand-gold);">
+        <h2 style="font-family: 'Merriweather', serif; margin-bottom: 2rem; color: var(--text-main);">{{ title }}</h2>
+
+        <form method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+            <div
+                style="background-color: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 1rem; border-radius: 8px; margin-bottom: 2rem;">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <!-- Full Width Fields -->
+                <div style="grid-column: span 2;">
+                    <label class="form-label"
+                        style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Username</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                    <div style="color: #ef4444; font-size: 0.85rem; margin-top: 0.25rem;">{{ form.username.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+
+
+
+                {% if form.password1 %}
+                <!-- UserCreationForm Password Fields -->
+                <div
+                    style="grid-column: span 2; background: #f9fafb; padding: 1.5rem; border-radius: 8px; border: 1px dashed var(--brand-primary);">
+                    <h4 style="margin-bottom: 1rem; font-size: 1rem; color: var(--brand-dark);">Set Password</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div>
+                            <label class="form-label"
+                                style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Password</label>
+                            {{ form.password1 }}
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">{{
+                                form.password1.help_text }}</div>
+                        </div>
+                        <div>
+                            <label class="form-label"
+                                style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Confirm
+                                Password</label>
+                            {{ form.password2 }}
+                        </div>
+                    </div>
+                    {% if form.password1.errors %}
+                    <div style="color: #ef4444; font-size: 0.85rem; margin-top: 0.5rem;">{{ form.password1.errors }}
+                    </div>
+                    {% endif %}
+                    {% if form.password2.errors %}
+                    <div style="color: #ef4444; font-size: 0.85rem; margin-top: 0.5rem;">{{ form.password2.errors }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <div style="grid-column: span 2;">
+                    <label class="form-label" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">System
+                        Role</label>
+                    {{ form.role }}
+                    {% if form.role.errors %}
+                    <div style="color: #ef4444; font-size: 0.85rem; margin-top: 0.25rem;">{{ form.role.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="form-label" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Assigned
+                        Office</label>
+                    {{ form.office }}
+                    {% if form.office.errors %}
+                    <div style="color: #ef4444; font-size: 0.85rem; margin-top: 0.25rem;">{{ form.office.errors }}</div>
+                    {% endif %}
+                </div>
+                <div>
+                    <label class="form-label" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Assigned
+                        Desk</label>
+                    {{ form.desk }}
+                    {% if form.desk.errors %}
+                    <div style="color: #ef4444; font-size: 0.85rem; margin-top: 0.25rem;">{{ form.desk.errors }}</div>
+                    {% endif %}
+                </div>
+
+                {% if form.is_active %}
+                <div style="grid-column: span 2; display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem;">
+                    {{ form.is_active }}
+                    <label class="form-label" style="font-weight: 600;">Active Account</label>
+                </div>
+                {% endif %}
+            </div>
+
+            <div style="margin-top: 2.5rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                <a href="{% url 'user_list' %}" class="btn-outline-hero"
+                    style="color: var(--text-main); border-color: var(--border-color);">Cancel</a>
+                <button type="submit" class="btn-primary-hero">Save User</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const officeSelect = document.getElementById("id_office");
+        const deskSelect = document.getElementById("id_desk");
+        const url = "{% url 'ajax_load_desks' %}";
+
+        console.log("Script loaded. URL:", url);
+
+        officeSelect.addEventListener("change", function () {
+            const officeId = this.value;
+            console.log("Office changed to:", officeId);
+
+            fetch(`${url}?office=${officeId}`)
+                .then(response => {
+                    console.log("Response status:", response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Data received:", data);
+                    deskSelect.innerHTML = '<option value="">---------</option>';
+                    data.forEach(desk => {
+                        const option = document.createElement("option");
+                        option.value = desk.id;
+                        option.textContent = desk.name;
+                        deskSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching desks:', error));
+        });
+    });
+</script>
+{% endblock %}

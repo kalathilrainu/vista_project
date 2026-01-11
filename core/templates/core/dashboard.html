@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Staff Dashboard - VISTA{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <h2 class="border-bottom pb-2">Staff Dashboard</h2>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Visits / Tokens Section -->
+    <div class="col-md-4">
+        <div class="card card-custom h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Pending Visits</h5>
+            </div>
+            <div class="card-body">
+                {% if pending_tokens %}
+                <div class="list-group">
+                    {% for token in pending_tokens %}
+                    <a href="#"
+                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1">{{ token.number }}</h5>
+                            <small>{{ token.visit.purpose.name|default:"General" }}</small>
+                        </div>
+                        <span class="badge bg-warning text-dark">Call</span>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center my-4">No pending visits.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Applications Section -->
+    <div class="col-md-4">
+        <div class="card card-custom h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Recent Applications</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_applications %}
+                <ul class="list-group list-group-flush">
+                    {% for app in recent_applications %}
+                    <li class="list-group-item">
+                        <strong>{{ app.file_number }}</strong><br>
+                        {{ app.applicant_name }}
+                        <span class="badge bg-info float-end">{{ app.get_status_display }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted text-center my-4">No recent applications.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Tapal Section -->
+    <div class="col-md-4">
+        <div class="card card-custom h-100">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">Incoming Tapal</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_tapals %}
+                <ul class="list-group list-group-flush">
+                    {% for tapal in recent_tapals %}
+                    <li class="list-group-item">
+                        <strong>{{ tapal.subject|truncatechars:30 }}</strong><br>
+                        <small>{{ tapal.sender }}</small>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted text-center my-4">No new tapal.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

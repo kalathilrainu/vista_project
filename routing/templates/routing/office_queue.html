@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+{% load routing_extras %}
+
+{% block content %}
+<!-- Meta refresh removed to prevent closing modals -->
+
+<div class="dashboard-header mb-4 p-3 rounded text-white shadow-sm" style="background-color: var(--brand-primary);">
+    <h4 class="m-0 fw-bold"><i class="bi bi-people-fill me-2"></i>Office Visit Queue</h4>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+                <thead class="text-white" style="background-color: var(--brand-dark);">
+                    <tr>
+                        <th style="width: 10%;">Token</th>
+                        <th style="width: 20%;">Visitor Name</th>
+                        <th style="width: 15%;">Mobile Number</th>
+                        <th style="width: 25%;">Purpose</th>
+                        <th style="width: 10%;">Reference No</th>
+                        <th style="width: 20%;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in queue_items %}
+                    <tr class="{% if forloop.first %}table-info{% endif %}">
+                        <td class="fw-bold fs-5 text-center">{{ item.visit.token|short_token }}</td>
+                        <td>{{ item.visit.name|default:"Guest" }}</td>
+                        <td>{{ item.visit.mobile|default:"-" }}</td>
+                        <td>{{ item.visit.purpose.name }}</td>
+                        <td>{% if item.visit.reference_number %}{{ item.visit.reference_number }}{% else %}-{% endif %}
+                        </td>
+
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center align-items-center gap-2">
+                                {% with lock=item.visit.active_lock %}
+                                <!-- View Button -->
+                                {% if lock and not lock.is_expired and lock.locked_by != user %}
+                                <!-- Locked by someone else -->
+                                <button type="button" class="btn btn-secondary btn-sm" disabled style="width: 80px;"
+                                    title="Locked by {{ lock.locked_by.username }}">
+                                    <i class="bi bi-lock-fill"></i> View
+                                </button>
+                                {% else %}
+                                <!-- Available or Locked by Me -->
+                                <button type="button" class="btn btn-primary btn-sm"
+                                    onclick="attemptLockAndOpen('{{ item.visit.id }}')" style="width: 80px;">
+                                    View
+                                </button>
+                                {% endif %}
+
+                                <!-- Call/Attend Button -->
+                                {% if item.visit.status == 'ROUTED' or item.visit.status == 'WAITING' %}
+                                {% if lock and not lock.is_expired and lock.locked_by != user %}
+                                <button class="btn btn-danger btn-sm disabled" style="width: 90px;"
+                                    title="Typically locked when another staff is viewing details">
+                                    In Progress
+                                </button>
+                                {% else %}
+                                <form action="{% url 'routing:attend_visit' item.visit.id %}" method="post"
+                                    class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success btn-sm"
+                                        style="width: 80px;">Call</button>
+                                </form>
+                                {% endif %}
+                                {% elif item.visit.status == 'IN_PROGRESS' %}
+                                {% if item.assigned_by == user %}
+                                <a href="{% url 'transactions:process_transaction' item.visit.id %}?source=office"
+                                    class="btn btn-primary btn-sm" style="width: 90px;">Resume</a>
+                                {% else %}
+                                <button class="btn btn-warning btn-sm disabled" style="width: 90px; opacity: 1;">In
+                                    Progress</button>
+                                {% endif %}
+                                {% endif %}
+                                {% endwith %}
+                            </div>
+
+                            <!-- View Details Modal -->
+                            <div class="modal fade" id="viewModal{{ item.visit.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Visit Details: {{ item.visit.token }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <form id="editVisitForm{{ item.visit.id }}"
+                                            action="{% url 'routing:update_visit' item.visit.id %}" method="post">
+                                            {% csrf_token %}
+                                            <div class="modal-body text-start">
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Visitor Name</label>
+                                                    <input type="text" name="name" class="form-control"
+                                                        value="{{ item.visit.name|default:'' }}" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Mobile Number</label>
+                                                    <input type="text" name="mobile" class="form-control"
+                                                        value="{{ item.visit.mobile|default:'' }}" pattern="\d*"
+                                                        title="Digits only">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <select name="purpose" class="form-select" required
+                                                        id="purpose_{{ item.visit.id }}">
+                                                        {% for p in all_purposes %}
+                                                        <option value="{{ p.id }}">{{ p.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                    <script>
+                                                        document.getElementById('purpose_{{ item.visit.id }}').value = "{{ item.visit.purpose.id }}";
+                                                    </script>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label fw-bold">Reference Number</label>
+                                                    <input type="text" name="reference_number" class="form-control"
+                                                        value="{{ item.visit.reference_number|default:'' }}">
+                                                </div>
+
+                                                {% if user.role == 'VO' %}
+                                                <div class="collapse mt-3" id="assignCollapse{{ item.visit.id }}">
+                                                    <div class="card card-body bg-light border-info">
+                                                        <h6 class="fw-bold text-info">Assign Assessment</h6>
+                                                        <div class="mb-2">
+                                                            <label class="form-label small">Select Desk</label>
+                                                            <select name="target_desk"
+                                                                class="form-select form-select-sm">
+                                                                <option value="">-- Select Desk --</option>
+                                                                {% for d in all_desks %}
+                                                                <option value="{{ d.id }}">{{ d.name }}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <label class="form-label small">Remarks (Optional)</label>
+                                                            <input type="text" name="remarks"
+                                                                class="form-control form-select-sm"
+                                                                placeholder="Remarks...">
+                                                        </div>
+                                                        <button type="submit" name="action" value="assign"
+                                                            class="btn btn-info btn-sm text-white w-100">
+                                                            Assign (Save & Route)
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="modal-footer">
+                                                {% if user.role == 'VO' %}
+                                                <button type="button" class="btn btn-info text-white"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#assignCollapse{{ item.visit.id }}">Assign</button>
+                                                {% endif %}
+
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Close</button>
+
+                                                <button type="submit" name="action" value="save"
+                                                    class="btn btn-primary">Save Changes</button>
+
+                                                {% if item.visit.status == 'ROUTED' or item.visit.status == 'WAITING' %}
+                                                <!-- CRITICAL: "Call Now" must be a submit button for this form to ensure edits are saved before calling. -->
+                                                <button type="submit" name="action" value="call"
+                                                    class="btn btn-success">Call Now</button>
+                                                {% endif %}
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted p-4">No active visits in queue.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Poll every 30 seconds
+        setInterval(function () {
+            // Check if any modal is open
+            const openModal = document.querySelector('.modal.show');
+            if (!openModal) {
+                console.log('Refreshing queue...');
+                window.location.reload();
+            } else {
+                console.log('Modal open, skipping refresh');
+                // Extend lock if modal is open?
+                // Ideally yes, but for now simple expiry (2 mins) covers most quick edits.
+                // Or we can hit 'check-lock' to heartbeat.
+            }
+        }, 30000);
+
+        // Unlock on Modal Close
+        var modals = document.querySelectorAll('.modal');
+        modals.forEach(function (modal) {
+            modal.addEventListener('hidden.bs.modal', function (event) {
+                // Extract ID from modal ID (viewModal123)
+                var visitId = modal.id.replace('viewModal', '');
+                unlockVisit(visitId);
+            });
+        });
+    });
+
+
+
+    function attemptLockAndOpen(visitId) {
+        // 1. Convert to integer/clean
+        // 2. Call API
+        fetch(`/routing/api/lock/${visitId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Open Modal
+                    var modalEl = document.getElementById('viewModal' + visitId);
+                    var modal = new bootstrap.Modal(modalEl);
+                    modal.show();
+                } else {
+                    alert(data.message); // "Locked by UserX"
+                    // Optionally reload to update UI
+                    window.location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error locking:', error);
+                alert("Connection error. Please try again.");
+            });
+    }
+
+    function unlockVisit(visitId) {
+        navigator.sendBeacon(`/routing/api/unlock/${visitId}/?csrfmiddlewaretoken={{ csrf_token }}`);
+        // Or fetch, but keepalive is better
+        {% comment %}
+        fetch(`/routing/api/unlock/${visitId}/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+            keepalive: true
+        });
+        {% endcomment %}
+    }
+</script>
+{% endblock %}

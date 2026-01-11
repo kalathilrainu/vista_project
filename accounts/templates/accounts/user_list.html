@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}User List | VISTA{% endblock %}
+
+{% load account_extras %}
+{% block content %}
+<div class="container" style="padding: 3rem 1.5rem;">
+    <!-- Breadcrumb -->
+    <div style="margin-bottom: 2rem;">
+
+    </div>
+
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div>
+            <h1 style="font-family: 'Merriweather', serif; font-size: 2rem; color: var(--brand-dark);">System Users</h1>
+            <p style="color: var(--text-muted);">Manage users and their system roles.</p>
+        </div>
+        <a href="{% url 'user_create' %}" class="btn-primary-hero" style="font-size: 0.9rem;">+ Add New User</a>
+    </div>
+
+    <!-- Search & Filter -->
+    <form method="get" class="search-bar-container" style="max-width: 600px; margin-bottom: 2rem;">
+        <input type="text" name="q" class="hero-search-input" placeholder="Search by username, name, or email..."
+            value="{{ request.GET.q|default:'' }}">
+        <button type="submit" class="btn-hero-search">Search</button>
+    </form>
+
+    <!-- Users Table -->
+    <div style="background: #fff; border-radius: 8px; box-shadow: var(--shadow-sm); overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead style="background: var(--brand-dark); color: #fff;">
+                <tr>
+                    <th style="padding: 1rem; text-align: left; font-weight: 600;">Username</th>
+                    <th style="padding: 1rem; text-align: left; font-weight: 600;">Full Name</th>
+                    <th style="padding: 1rem; text-align: left; font-weight: 600;">Role</th>
+                    <th style="padding: 1rem; text-align: left; font-weight: 600;">Office/Desk</th>
+                    <th style="padding: 1rem; text-align: left; font-weight: 600;">Status</th>
+                    <th style="padding: 1rem; text-align: right; font-weight: 600;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr style="border-bottom: 1px solid var(--border-color);">
+                    <td style="padding: 1rem; font-weight: 500;">{{ user.username }}</td>
+                    <td style="padding: 1rem;">{{ user|get_current_staff_name|default:"-" }}</td>
+                    <td style="padding: 1rem;">
+                        <span
+                            style="background: #eef2ff; color: var(--brand-dark); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">
+                            {{ user.get_role_display }}
+                        </span>
+                    </td>
+                    <td style="padding: 1rem; font-size: 0.9rem; color: var(--text-muted);">
+                        {{ user.office|default:"-" }} / {{ user.desk|default:"-" }}
+                    </td>
+                    <td style="padding: 1rem;">
+                        {% if user.is_active %}
+                        <span style="color: var(--brand-primary); font-weight: 600;">Active</span>
+                        {% else %}
+                        <span style="color: #ef4444; font-weight: 600;">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1rem; text-align: right;">
+                        <a href="{% url 'user_update' user.pk %}"
+                            style="color: var(--brand-primary); font-weight: 600; font-size: 0.9rem;">Edit</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" style="padding: 3rem; text-align: center; color: var(--text-muted);">
+                        No users found matching your search.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div style="margin-top: 2rem; display: flex; justify-content: center; gap: 0.5rem;">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}&q={{ request.GET.q }}" class="btn-outline-hero"
+            style="color: var(--text-main); border-color: var(--border-color);">Previous</a>
+        {% endif %}
+        <span style="padding: 0.75rem 1rem;">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&q={{ request.GET.q }}" class="btn-outline-hero"
+            style="color: var(--text-main); border-color: var(--border-color);">Next</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

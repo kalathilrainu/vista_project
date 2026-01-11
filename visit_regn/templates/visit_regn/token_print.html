@@ -1,0 +1,149 @@
+{% load i18n %}
+{% load static %}
+{% load tz %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Details | VISTA</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Merriweather:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'visit_regn/css/kiosk_v2.css' %}">
+
+    <style>
+        /* Reusing Kiosk Styles locally if needed or relying on kiosk_v2 */
+        body.kiosk-mode {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            overflow-y: auto;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .token-card {
+            border: none;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 40px;
+            text-align: center;
+        }
+    </style>
+    <style media="print">
+        @page {
+            size: 80mm auto;
+            margin: 0;
+        }
+
+        body {
+            background: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            display: block !important;
+            font-family: 'Courier New', Courier, monospace !important;
+            color: black !important;
+        }
+
+        .token-card {
+            box-shadow: none !important;
+            padding: 10px !important;
+            max-width: 100% !important;
+            border-radius: 0 !important;
+            margin: 0 !important;
+            background: white !important;
+        }
+
+        /* Hide standard UI elements including the Close button */
+        .btn,
+        .d-grid,
+        .animate__animated {
+            animation: none !important;
+        }
+
+        /* Hide everything that isn't content */
+        .d-grid {
+            display: none !important;
+        }
+
+        h1.display-1 {
+            color: black !important;
+            font-size: 3rem !important;
+            font-weight: 900 !important;
+            border: 2px solid black;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 20px 0;
+            display: inline-block;
+        }
+
+        .text-muted {
+            color: black !important;
+        }
+
+        /* Ensure office name is bold at top */
+        .token-card h4 {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            border-bottom: 1px dashed black;
+            padding-bottom: 10px;
+        }
+
+        .bg-light {
+            background: none !important;
+            border: none !important;
+            padding: 0 !important;
+        }
+
+        .bi {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="kiosk-mode d-flex justify-content-center align-items-center">
+
+    <div class="token-card animate__animated animate__zoomIn">
+        <h4 class="text-uppercase text-muted mb-3 fw-bold small ls-1">{{ visit.office.name }}</h4>
+
+        <div class="mb-4">
+            <h6 class="text-muted text-uppercase small ls-2 mb-2">{% trans "Your Token Number" %}</h6>
+            <h1 class="display-1 fw-bold text-primary mb-0" style="font-size: 4rem;">{{ visit.token }}</h1>
+        </div>
+
+        <div class="mb-4 p-3 bg-light rounded-3">
+            <h5 class="fw-bold mb-1">{{ visit.purpose.name }}</h5>
+            {% if visit.name %}
+            <p class="text-muted mb-0 small">{{ visit.name }}</p>
+            {% endif %}
+        </div>
+
+        <p class="text-muted mb-5 small">
+            <i class="bi bi-clock"></i> {{ visit.token_issue_time|date:"d M Y, h:i A" }}
+        </p>
+
+        <div class="d-grid">
+            <a href="{{ exit_url }}" class="btn btn-outline-secondary btn-lg rounded-pill px-5">
+                {% trans "Close" %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
