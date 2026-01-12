@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container-fluid mt-0 px-4">
     <!-- Main Green Header -->
     <div class="dashboard-header mb-4 p-3 rounded text-white shadow-sm" style="background-color: var(--brand-primary);">
         <div class="d-flex justify-content-between align-items-center">
@@ -21,24 +21,29 @@
                 </div>
                 <div class="card-body">
                     <!-- DEBUG: v3 Formatter Evasion -->
-                    <p>
+                    <p class="mb-2">
                         <strong>Status:</strong>
                         <span class="badge bg-secondary">
                             {{ office_file.get_status_display }}
                         </span>
                     </p>
-                    <p>
+                    <p class="mb-2">
                         <strong>Interim Status:</strong>
                         <span class="badge bg-info text-dark">
                             {{ office_file.get_interim_status_display }}
                         </span>
                     </p>
-                    <p><strong>Assigned Desk:</strong> {{ office_file.desk.name }}</p>
-                    <p><strong>Created:</strong> {{ office_file.created_at|date:"d M Y" }}</p>
+                    <p class="mb-2"><strong>Assigned Desk:</strong> {{ office_file.desk.name }}</p>
+                    <p class="mb-2"><strong>Created:</strong> {{ office_file.created_at|date:"d M Y" }}</p>
                     <hr>
-                    <h6>Related Token</h6>
-                    <p class="mb-0">Token: <strong>{{ office_file.visit.token }}</strong></p>
-                    <p class="small text-muted">{{ office_file.visit.name }} - {{ office_file.visit.purpose.name }}</p>
+                    <h6 class="mb-2">Related Token: <strong>{{ office_file.visit.token }}</strong></h6>
+
+                    <p class="mb-2">Mobile No: <strong><i class="bi bi-phone"></i>
+                            {{ office_file.visit.mobile }}
+                        </strong></p>
+
+                    <p class="mb-2">Name: <strong>{{ office_file.visit.name }}</strong></p>
+                    <p class="mb-0 text-truncate">Subject: <strong>{{ office_file.visit.purpose.name }}</strong></p>
                 </div>
             </div>
 
