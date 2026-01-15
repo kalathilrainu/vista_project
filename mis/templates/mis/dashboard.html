@@ -48,7 +48,7 @@
 
         <!-- 3. Pending Files (KPI) -->
         <div class="col">
-            <div class="dashboard-card card-theme-red cursor-default">
+            <a href="{% url 'mis:file_report' %}?status=OPEN" class="dashboard-card card-theme-red">
                 <div class="card-icon-container bg-red">
                     <i class="bi bi-file-earmark-text-fill"></i>
                 </div>
@@ -56,7 +56,7 @@
                     <div class="card-title">Pending Files</div>
                     <div class="card-value">{{ pending_files }}</div>
                 </div>
-            </div>
+            </a>
         </div>
 
         <!-- 4. Avg Wait Time (KPI) -->
@@ -126,15 +126,17 @@
         </div>
 
         <!-- Placeholders 9-20 -->
+        <!-- 9. Closed Files (KPI) -->
         <div class="col">
-            <div class="dashboard-card card-theme-secondary" style="opacity: 0.6; cursor: default;">
-                <div class="card-icon-container bg-secondary">
-                    <i class="bi bi-dash-lg"></i>
+            <a href="{% url 'mis:file_report' %}?status=CLOSED" class="dashboard-card card-theme-teal">
+                <div class="card-icon-container bg-teal">
+                    <i class="bi bi-check-circle-fill"></i>
                 </div>
                 <div class="card-content">
-                    <div class="card-title text-muted">Empty Slot</div>
+                    <div class="card-title">Closed Files</div>
+                    <div class="card-value">{{ closed_files }}</div>
                 </div>
-            </div>
+            </a>
         </div>
         <div class="col">
             <div class="dashboard-card card-theme-secondary" style="opacity: 0.6; cursor: default;">

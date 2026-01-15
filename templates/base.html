@@ -56,6 +56,9 @@
         <!-- Left Side: VISTA v 1.0 -->
         <div class="nav-left" style="color: white; font-size: 1.5rem; font-weight: 700;">
             VISTA <span style="font-size: 1rem; opacity: 0.8; font-weight: 400;">v 1.0</span>
+            <span
+                style="font-family: 'Merriweather', serif; font-size: 1.6rem; margin-left: 17.5rem; font-style: italic; font-weight: 700; letter-spacing: 0.5px; opacity: 1; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Village
+                Office Nattakam</span>
         </div>
 
         <!-- Right Side: User Info & Logout -->
@@ -103,8 +106,11 @@
             role="alert" aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body">
-                    {% if message.tags == 'success' %}<i class="bi bi-check-circle-fill me-2"></i>{% elif
-                    message.tags == 'error' %}<i class="bi bi-exclamation-triangle-fill me-2"></i>{% endif %}
+                    {% if message.tags == 'success' %}
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                    {% elif message.tags == 'error' %}
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    {% endif %}
                     {{ message }}
                 </div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"

@@ -147,7 +147,10 @@
                         onclick="selectFileAndSubmit('{{ file.pk }}')">
                         <div>
                             <div class="fw-bold">{{ file.file_number }}</div>
-                            <small class="text-muted">{{ file.subject }}</small>
+                            <div class="small fw-bold text-dark">{{ file.visit.purpose.name|default:"-" }}</div>
+                            {% if file.remarks1 %}
+                            <div class="small text-muted fst-italic">"{{ file.remarks1 }}"</div>
+                            {% endif %}
                         </div>
                         <span class="badge bg-secondary rounded-pill">{{ file.match_type }}</span>
                     </button>

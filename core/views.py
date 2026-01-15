@@ -9,31 +9,7 @@ try:
 except ImportError:
     pass
 
-def landing(request):
-    """
-    Public Home Page
-    """
-    context = {
-        'announcements': [
-            'Village Office working hours: 10 AM - 5 PM',
-            'Land Tax payment due date extended',
-            'Pension mustering camp on Saturday'
-        ]
-    }
 
-    # Generate Simple Math CAPTCHA
-    import random
-    
-    num1 = random.randint(1, 9)
-    num2 = random.randint(1, 9)
-    # Using addition only for simplicity and mobile-friendliness
-    question = f"What is {num1} + {num2}?"
-    answer = num1 + num2
-    
-    request.session['captcha_expected'] = answer
-    context['captcha_question'] = question
-
-    return render(request, 'home.html', context)
 
 @login_required
 def dashboard(request):

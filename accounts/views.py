@@ -39,8 +39,8 @@ class LandingLoginView(LoginView):
         # Add basic announcements content required by home.html
         context['announcements'] = [
             'Village Office working hours: 10 AM - 5 PM',
-            'Land Tax payment due date extended',
-            'Pension mustering camp on Saturday'
+            'SIR 2026 – Hearing Time: 9 AM - 5 PM',
+            'Voter Help Desk Working at Village Office'
         ]
         return context
 

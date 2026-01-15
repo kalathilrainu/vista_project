@@ -35,6 +35,11 @@ class MISDashboardView(LoginRequiredMixin, TemplateView):
         context['pending_files'] = OfficeFile.objects.filter(
             status='OPEN'
         ).count()
+
+        # KPI 3.5: Closed Office Files
+        context['closed_files'] = OfficeFile.objects.filter(
+            status='CLOSED'
+        ).count()
         
         # KPI 4: Average Wait Time (Approximate - Difference between Issue and Attend time)
         # Only for those attended today
