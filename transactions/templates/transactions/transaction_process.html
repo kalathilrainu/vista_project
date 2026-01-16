@@ -15,21 +15,51 @@
                 <div class="card-body p-3">
 
                     <!-- Smart File Detection Alerts -->
-                    {% if related_files %}
-                    <div class="alert alert-success d-flex align-items-center py-2 px-3 mb-3 shadow-sm generic-alert"
-                        role="alert">
-                        <i class="bi bi-info-circle-fill fs-5 me-2"></i>
-                        <div class="flex-grow-1">
-                            <strong>Smart File Detection:</strong> {{ related_files|length }} matching file(s) found.
-                            <ul class="mb-0 ps-3 small">
-                                {% for file in related_files %}
-                                <li>
-                                    <strong>{{ file.file_number }}</strong>
-                                    {% if file.match_type %}({{ file.match_type }}){% endif %}
-                                    - {{ file.subject|truncatechars:30 }}
-                                </li>
-                                {% endfor %}
-                            </ul>
+                    <!-- Smart File Detection Alerts -->
+                    <!-- Smart File Detection Alerts -->
+                    <!-- Smart File Detection Alerts -->
+                    {% if detected_files %}
+                    <div class="mb-4">
+                        <h6 class="fw-bold text-muted border-bottom pb-2 mb-3">
+                            <i class="bi bi-lightbulb-fill text-warning me-2"></i>Smart File Detection
+                        </h6>
+
+                        <div class="table-responsive shadow-sm border rounded">
+                            <table class="table table-hover align-middle mb-0 text-center">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col" class="py-3">File No</th>
+                                        <th scope="col" class="py-3">Opened Date</th>
+                                        <th scope="col" class="py-3">Mobile No</th>
+                                        <th scope="col" class="py-3">Purpose</th>
+                                        <th scope="col" class="py-3">Interim Status</th>
+                                        <th scope="col" class="py-3">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in detected_files %}
+                                    {% with file=item.file %}
+                                    <tr>
+                                        <td class="fw-bold text-primary">{{ file.file_number }}</td>
+                                        <td>{{ file.created_at|date:"d/m/Y" }}</td>
+                                        <td>{{ file.visit.mobile }}</td>
+                                        <td>{{ file.visit.purpose|default:"-" }}</td>
+                                        <td>
+                                            <span class="badge bg-secondary text-wrap" style="max-width: 150px;">
+                                                {{ file.interim_status|default:"Processing" }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-success btn-sm fw-bold px-3 shadow-sm"
+                                                onclick="selectFileAndSubmit('{{ file.id }}')">
+                                                Open File
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endwith %}
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                     {% endif %}
@@ -128,82 +158,34 @@
     </div>
 </div>
 
-<!-- File Selection Modal -->
-<div class="modal fade" id="fileSelectionModal" tabindex="-1" aria-labelledby="fileSelectionModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-light">
-                <h5 class="modal-title" id="fileSelectionModalLabel">Select File</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p class="small text-muted mb-3">Multiple files matched this visit. Please select which file to open, or
-                    create a new one.</p>
-                <div class="list-group">
-                    {% for file in related_files %}
-                    <button type="button"
-                        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                        onclick="selectFileAndSubmit('{{ file.pk }}')">
-                        <div>
-                            <div class="fw-bold">{{ file.file_number }}</div>
-                            <div class="small fw-bold text-dark">{{ file.visit.purpose.name|default:"-" }}</div>
-                            {% if file.remarks1 %}
-                            <div class="small text-muted fst-italic">"{{ file.remarks1 }}"</div>
-                            {% endif %}
-                        </div>
-                        <span class="badge bg-secondary rounded-pill">{{ file.match_type }}</span>
-                    </button>
-                    {% endfor %}
-                    <button type="button"
-                        class="list-group-item list-group-item-action text-center text-primary fw-bold mt-2 border-top-0"
-                        onclick="selectFileAndSubmit('')">
-                        <i class="bi bi-plus-circle me-1"></i> Create New File
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- No Modal Needed for Single Smart Match -->
 
 <script>
-    // Prepare data for JS
-    const detectedFiles = [
-        {% for file in related_files %}
-    { id: "{{ file.pk }}", number: "{{ file.file_number }}", type: "{{ file.match_type }}" },
-    {% endfor %}
-    ];
-
     function handleOpenFile() {
-        const form = document.getElementById('transactionForm');
+        // Default behavior for bottom button:
+        // If there is a found file (smart link), prioritize opening it?
+        // OR: If the user ignored the alert button and clicked "Open File" at bottom,
+        // it usually means "Create New" or "Standard Open".
+        // Let's check if we have a found_file ID available in template? 
+        // Actually, safest is: Bottom button = Create New (pass empty ID), 
+        // Alert Button = Open Specific (pass ID).
 
-        if (detectedFiles.length === 0) {
-            // No matches, just create new
-            submitWithAction('open_file');
-        } else if (detectedFiles.length === 1) {
-            // Single match, auto-select
-            document.getElementById('target_file_id').value = detectedFiles[0].id;
-            submitWithAction('open_file');
-        } else {
-            // Multiple matches, show modal
-            const modal = new bootstrap.Modal(document.getElementById('fileSelectionModal'));
-            modal.show();
-        }
+        // HOWEVER, if it's a perfect match (Green), maybe we should default to opening it?
+        // Let's keep it simple: Bottom button -> Create New (id='')
+        // The Alert button is there for the convenient link.
+        selectFileAndSubmit('');
     }
 
     function selectFileAndSubmit(fileId) {
         document.getElementById('target_file_id').value = fileId;
-        submitWithAction('open_file');
-    }
 
-    function submitWithAction(actionValue) {
         const form = document.getElementById('transactionForm');
-        // Create a hidden input for the action button since we are submitting via JS
         let input = document.createElement('input');
         input.type = 'hidden';
         input.name = 'action';
-        input.value = actionValue;
+        input.value = 'open_file';
         form.appendChild(input);
+
         form.submit();
     }
 </script>

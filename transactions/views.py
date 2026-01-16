@@ -27,38 +27,59 @@ class TransactionCreateView(LoginRequiredMixin, View):
         
         source = request.GET.get('source', '')
         
-        # Reference Number Logic
-        related_files = []
+        # Smart File Detection Logic
+        detected_files = []
+        found_file_ids = set()
+        
+        from filing.models import OfficeFile
+        from django.db.models import Q
         
         # Step A: Reference Number Search
         if visit.reference_number:
             ref = visit.reference_number.strip()
-            from filing.models import OfficeFile
-            from django.db.models import Q
-            
             # Search for OPEN files by File Number OR Valid Token
-            ref_files = OfficeFile.objects.filter(
+            ref_matches = OfficeFile.objects.filter(
                 Q(file_number__iexact=ref) | 
                 Q(visit__token__iexact=ref),
                 status='OPEN'
             )
-            for f in ref_files:
-                if f not in related_files:
-                    f.match_type = 'Reference Match'
-                    related_files.append(f)
+            
+            for file in ref_matches:
+                if file.id in found_file_ids:
+                    continue
+                    
+                alert_type = 'mismatch' # Default to mismatch
+                
+                # Check Mobile Match (Data Integrity)
+                file_mobile = file.visit.mobile if file.visit else None
+                current_mobile = visit.mobile
+                
+                if file_mobile and current_mobile and file_mobile == current_mobile:
+                    alert_type = 'match' # Green: Verified Match
+                
+                detected_files.append({
+                    'file': file,
+                    'alert_type': alert_type
+                })
+                found_file_ids.add(file.id)
         
-        # Step B: Mobile Number Search
+        # Step B: Mobile Number Search (Discovery - Search for ANY open files with this mobile)
         if visit.mobile:
-            from filing.models import OfficeFile
-            mobile_files = OfficeFile.objects.filter(
+            mobile_matches = OfficeFile.objects.filter(
                 visit__mobile=visit.mobile,
                 status='OPEN'
-            )
-            for f in mobile_files:
-                # Avoid duplicates
-                if not any(rf.id == f.id for rf in related_files):
-                    f.match_type = 'Mobile Match'
-                    related_files.append(f)
+            ).order_by('-created_at')
+            
+            for file in mobile_matches:
+                if file.id in found_file_ids:
+                    continue
+                
+                # If found here, it wasn't a direct ref match, so it's a discovery
+                detected_files.append({
+                    'file': file,
+                    'alert_type': 'mobile_discovery'
+                })
+                found_file_ids.add(file.id)
         
         return render(request, self.template_name, {
             'form': form, 
@@ -66,7 +87,7 @@ class TransactionCreateView(LoginRequiredMixin, View):
             'visit': visit, 
             'transaction': transaction,
             'source': source,
-            'related_files': related_files,
+            'detected_files': detected_files,
         })
 
     def post(self, request, visit_id):
