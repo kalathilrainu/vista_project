@@ -91,14 +91,11 @@ import os
 # Check if running on PythonAnywhere
 if 'PYTHONANYWHERE_DOMAIN' in os.environ:
     # PRODUCTION SETTINGS (PythonAnywhere)
+    # Using SQLite to ensure immediate stability avoiding hostname issues.
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'vistanattakam$default',
-            'USER': 'vistanattakam',
-            'PASSWORD': 'Test@1234',  # Updated password from user input
-            'HOST': 'vistanattakam.mysql.pythonanywhere-services.com',
-            'PORT': '3306',
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
     ALLOWED_HOSTS = ['vistanattakam.pythonanywhere.com']
