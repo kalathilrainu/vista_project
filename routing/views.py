@@ -140,11 +140,18 @@ class VORoutingView(LoginRequiredMixin, ListView):
         if not self.request.user.office:
             return Visit.objects.none()
             
+        # Use explicit range filter for today
+        today = timezone.localdate()
+        from datetime import datetime, time
+        start_of_day = timezone.make_aware(datetime.combine(today, time.min))
+        end_of_day = timezone.make_aware(datetime.combine(today, time.max))
+
         return Visit.objects.filter(
             office=self.request.user.office,
             status__in=[Visit.Status.WAITING, Visit.Status.ROUTED, Visit.Status.IN_PROGRESS],
-            token_issue_time__date=timezone.localdate()
+            token_issue_time__range=(start_of_day, end_of_day)
         ).order_by('token_issue_time')
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

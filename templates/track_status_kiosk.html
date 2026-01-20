@@ -1,0 +1,271 @@
+{% load i18n %}
+{% load static %}
+<!-- FIXED VERSION V4 - ROBUST FORMATTING -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Status - {{ office.name|default:"VISTA Kiosk" }}</title>
+    <link rel="stylesheet" href="{% static 'visit_regn/css/kiosk_v2.css' %}?v=2.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .result-container {
+            width: 100%;
+            padding: 1rem;
+            color: #333;
+            max-height: 55vh;
+            overflow-y: auto;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .result-header {
+            font-size: 1.2rem;
+            color: var(--brand-blue, #0056b3);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .result-status {
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .result-detail {
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+            color: #555;
+        }
+
+        .back-button-wrapper {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .btn-kiosk-back {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+
+        .btn-kiosk-back:hover {
+            transform: translateY(-2px);
+        }
+
+        .result-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .result-container::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+        }
+
+        .result-container::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        .result-content-wrapper {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .result-content-wrapper.wrap-enabled {
+            flex-wrap: wrap;
+        }
+
+        .associated-header {
+            color: var(--brand-blue, #0056b3);
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+
+<body class="kiosk-mode">
+    <div class="kiosk-container">
+        <div class="kiosk-card">
+            <header class="kiosk-header">
+                <div class="kiosk-logo-area">
+                    <img src="{% static 'images/vista_logo.png' %}" alt="VISTA Logo" class="kiosk-logo-img">
+                    <img src="{% static 'images/gov_kerala_logo.png' %}" alt="Kerala Govt" class="kiosk-logo-img"
+                        style="border-left: 2px solid #ddd; padding-left: 1.5rem;">
+                </div>
+                <div class="kiosk-office-name">
+                    <h1>Status Tracker</h1>
+                    <p>Search Results for "<strong>{{ query }}</strong>"</p>
+                </div>
+            </header>
+
+            <div class="kiosk-search-section" style="padding: 1rem 2rem 0.5rem;">
+                <div class="search-bar-container" style="max-height: 50px;">
+                    <form action="{% url 'track_status' %}" method="get"
+                        style="display: flex; width: 100%; align-items: center;">
+                        <input type="hidden" name="kiosk" value="true">
+                        {% if request.GET.office %}
+                        <input type="hidden" name="office" value="{{ request.GET.office }}">
+                        {% endif %}
+                        <input type="text" name="q" value="{{ query }}" placeholder="Search again..."
+                            class="kiosk-search-input" style="border: none; outline: none; flex-grow: 1;">
+                        <button type="submit" class="btn-kiosk-search" style="padding: 0.5rem 1.5rem;">Search</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="kiosk-actions result-container">
+                {% if result %}
+                {% if result.type == 'Multiple Matches' %}
+                <div class="alert alert-warning"
+                    style="background: rgba(255,243,205,0.8); padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+                    We found {{ result.count }} files. Please verify your Office.
+                </div>
+                {% for item in result.matches %}
+                <div class="result-card">
+                    <div class="result-header">
+                        <span>{{ item.ref }}</span>
+                        <span class="result-status status-info">{{ item.status }}</span>
+                    </div>
+                    <div class="result-detail"><i class="bi bi-building me-1"></i> {{ item.office }}</div>
+                    <div class="result-detail"><i class="bi bi-calendar me-1"></i> {{ item.date|date:"d M Y" }}</div>
+                    {% if item.file_no %}
+                    <div class="result-detail"><i class="bi bi-folder me-1"></i> File: {{ item.file_no }}</div>
+                    {% endif %}
+                    <div class="result-detail" style="margin-top:5px; font-weight:600;">{{ item.purpose }}</div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="result-card" style="background: rgba(255, 255, 255, 0.8);">
+                    <div class="result-header"
+                        style="font-size: 1.5rem; justify-content: center; flex-direction: column;">
+                        {{ result.ref }}
+                        <div style="font-size: 0.9rem; font-weight: normal; color: #666; margin-top: 5px;">Reference
+                            Number</div>
+                    </div>
+                    <hr style="border: 0; border-top: 1px solid rgba(0,0,0,0.1); margin: 1rem 0;">
+                    <div class="result-content-wrapper {% if result.linked_ref %}wrap-enabled{% endif %}">
+                        <div style="flex: 1; min-width: 200px;">
+                            <div class="result-detail" style="text-align: center;">
+                                <span
+                                    style="display: block; font-size: 0.85rem; text-transform: uppercase; color: #888;">Current
+                                    Status</span>
+                                <span
+                                    class="result-status {% if 'Completed' in result.status or 'Closed' in result.status %}status-success{% elif 'Pending' in result.status %}status-warning{% else %}status-info{% endif %}"
+                                    style="font-size: 1.3rem; display: inline-block; margin-top: 5px;">
+                                    {{ result.status }}
+                                </span>
+                            </div>
+                            <div class="result-detail" style="text-align: center; margin-top: 1rem;">
+                                <span
+                                    style="display: block; font-size: 0.85rem; text-transform: uppercase; color: #888;">Current
+                                    Location</span>
+                                <div style="font-size: 1.1rem; font-weight: 600; color: #333;">
+                                    {{ result.location }}
+                                </div>
+                            </div>
+                            <div class="result-detail" style="text-align: center; margin-top: 1rem;">
+                                <span
+                                    style="display: block; font-size: 0.85rem; text-transform: uppercase; color: #888;">Office</span>
+                                <div style="font-size: 1.1rem; font-weight: 600; color: #333;">
+                                    {% if result.office %}
+                                    {{ result.office }}
+                                    {% else %}
+                                    General Office
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% if result.linked_ref %}
+                        <div
+                            style="flex: 1; min-width: 200px; border-left: 1px solid rgba(0,0,0,0.1); padding-left: 1rem;">
+                            <h5 class="associated-header">Associated {{ result.linked_type }}</h5>
+                            <div class="result-header" style="font-size: 1.1rem;">
+                                {{ result.linked_ref }}
+                            </div>
+                            <div class="result-detail">
+                                <span style="font-weight: 600;">Status:</span> {{ result.linked_status }}
+                            </div>
+                            <div class="result-detail">
+                                <span style="font-weight: 600;">Loc:</span> {{ result.linked_location }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                {% else %}
+                <div class="result-card" style="text-align: center; background: rgba(255, 235, 235, 0.8);">
+                    <i class="bi bi-exclamation-circle"
+                        style="font-size: 3rem; color: #dc3545; display: block; margin-bottom: 1rem;"></i>
+                    <h3 style="color: #c82333;">No Record Found</h3>
+                    <p>We could not find any Token or File matching "<strong>{{ query }}</strong>".</p>
+                    <p style="font-size: 0.9rem;">Please check the number and try again.</p>
+                </div>
+                {% endif %}
+                <div class="back-button-wrapper">
+                    {% if request.GET.office %}
+                    <a href="{% url 'visit_regn:mobile_entry' %}?office={{ request.GET.office }}"
+                        class="btn-kiosk-back">
+                        <i class="bi bi-arrow-left me-2"></i> Back to Registration
+                    </a>
+                    {% else %}
+                    <a href="{% url 'visit_regn:kiosk_home' %}" class="btn-kiosk-back">
+                        <i class="bi bi-arrow-left me-2"></i> Back to Kiosk Home
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <footer class="kiosk-footer">
+                <div class="credits">
+                    &copy; {% now "Y" %} VISTA Portal
+                </div>
+            </footer>
+        </div>
+    </div>
+</body>
+
+</html>

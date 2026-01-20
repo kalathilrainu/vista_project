@@ -29,6 +29,7 @@ class Visit(models.Model):
         QR = 'QR', 'QR Code'
         KIOSK = 'KIOSK', 'Kiosk'
         QUICK = 'QUICK', 'Quick'
+        MOBILE = 'MOBILE', 'Mobile'
 
     class Status(models.TextChoices):
         WAITING = 'WAITING', 'Waiting'
@@ -88,9 +89,9 @@ class Visit(models.Model):
             counter.last_seq += 1
             counter.save()
             
-            # Token format: <OFFICECODE>-<YYYYMMDD>-<NNN>
+            # Token format: <OFFICECODE>-<DDMMYYYY>-<NNN>
             # Assuming office.code exists and is consistent
-            date_str = today.strftime('%Y%m%d')
+            date_str = today.strftime('%d%m%Y')
             seq_str = f"{counter.last_seq:03d}"
             token = f"{office.code}-{date_str}-{seq_str}"
             

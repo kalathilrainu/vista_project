@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from django.views import View
-from django.http import JsonResponse
+from django.urls import reverse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
 from .models import Transaction
@@ -100,11 +102,16 @@ class TransactionCreateView(LoginRequiredMixin, View):
         # Validate both
         if form.is_valid() and visit_form.is_valid():
             transaction = form.save(commit=False)
-            visit_form.save()
+            visit_form.save() # This saves the name/mobile updates to DB
             
             action = request.POST.get('action')
             
             if action == 'close':
+                # VALIDATION: Name and Mobile are mandatory for completing a visit
+                if not visit.name or not visit.mobile:
+                    messages.error(request, "Visitor Name and Mobile Number are required to Complete the Visit.")
+                    return redirect('transactions:process_transaction', visit_id=visit.id)
+
                 transaction.status = 'CLOSED'
                 visit.status = 'COMPLETED'
                 visit.completed_at = timezone.now()
@@ -114,6 +121,12 @@ class TransactionCreateView(LoginRequiredMixin, View):
                 return redirect('dashboard') 
                 
             elif action == 'open_file':
+                # VALIDATION: Name and Mobile are mandatory for creating a file
+                if not visit.name or not visit.mobile:
+                    messages.error(request, "Visitor Name and Mobile Number are required to Open a File.")
+                    # Redirect back to the same page
+                    return redirect('transactions:process_transaction', visit_id=visit.id)
+
                 target_file_id = request.POST.get('target_file_id')
                 
                 transaction.status = 'OPEN_FILE'

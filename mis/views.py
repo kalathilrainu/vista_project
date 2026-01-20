@@ -18,16 +18,20 @@ class MISDashboardView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
+        # Calculate consistent start/end of day
         today = timezone.localtime().date()
+        start_of_day = timezone.make_aware(datetime.datetime.combine(today, datetime.time.min))
+        end_of_day = timezone.make_aware(datetime.datetime.combine(today, datetime.time.max))
         
         # KPI 1: Visits Today
         context['visits_today'] = Visit.objects.filter(
-            token_issue_time__date=today
+            token_issue_time__range=(start_of_day, end_of_day)
         ).count()
         
         # KPI 2: Active Tokens (Waiting or In Progress - not Completed/Cancelled)
         context['active_tokens'] = Visit.objects.filter(
-            token_issue_time__date=today,
+            token_issue_time__range=(start_of_day, end_of_day),
             status__in=['WAITING', 'ROUTED', 'IN_PROGRESS']
         ).count()
         
@@ -44,7 +48,7 @@ class MISDashboardView(LoginRequiredMixin, TemplateView):
         # KPI 4: Average Wait Time (Approximate - Difference between Issue and Attend time)
         # Only for those attended today
         visited_today = Visit.objects.filter(
-            token_issue_time__date=today,
+            token_issue_time__range=(start_of_day, end_of_day),
             token_attend_time__isnull=False
         )
         avg_wait = visited_today.aggregate(
@@ -58,7 +62,9 @@ class MISDashboardView(LoginRequiredMixin, TemplateView):
             context['avg_wait_time'] = 0
 
         # Chart Data: Purpose Breakdown (Today)
-        purpose_data = Visit.objects.filter(token_issue_time__date=today).values(
+        purpose_data = Visit.objects.filter(
+            token_issue_time__range=(start_of_day, end_of_day)
+        ).values(
             'purpose__name'
         ).annotate(count=Count('id')).order_by('-count')
         
@@ -127,9 +133,15 @@ class DailyReportView(BaseReportView):
     
     def get_queryset(self):
         from_date, to_date = self.get_filter_dates()
+        
+        # Convert to timezone-aware datetime range to avoid __date lookup issues
+        start_datetime = timezone.make_aware(datetime.datetime.combine(from_date, datetime.time.min))
+        end_datetime = timezone.make_aware(datetime.datetime.combine(to_date, datetime.time.max))
+        
         qs = Visit.objects.filter(
-            token_issue_time__date__range=[from_date, to_date]
+            token_issue_time__range=(start_datetime, end_datetime)
         ).select_related('purpose', 'office').order_by('-token_issue_time')
+
         
         # Search
         search = self.request.GET.get('search')

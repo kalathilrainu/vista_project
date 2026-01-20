@@ -151,10 +151,48 @@ def track_status(request):
                             'id': f.id # To potentially link to a detail view if URL structure allowed, but query is safe enough
                         }
                         result['matches'].append(match_data)
+            
+            else:
+                # 3. Try Searching for Visits by Mobile Number
+                matching_visits = Visit.objects.filter(mobile=query).order_by('-token_issue_time')
+                
+                if matching_visits.exists():
+                    result = {
+                        'type': 'Multiple Matches',
+                        'count': matching_visits.count(),
+                        'matches': []
+                    }
+                    for v in matching_visits:
+                        # Find linked file if any
+                        file_no = None
+                        if hasattr(v, 'office_file'):
+                            file_no = v.office_file.file_number
+                        elif v.related_office_file:
+                            file_no = v.related_office_file.file_number
+
+                        match_data = {
+                            'ref': v.token,
+                            'office': v.office.name if v.office else "General",
+                            'status': v.get_status_display(),
+                            'date': v.token_issue_time,
+                            'purpose': v.purpose.name if v.purpose else "-",
+                            'file_no': file_no
+                        }
+                        result['matches'].append(match_data)
+
 
     
     context = {
         'query': query,
         'result': result
     }
+    
+    # Check for Kiosk Context (via Flag or User)
+    is_kiosk = request.GET.get('kiosk') == 'true'
+    if not is_kiosk and request.user.is_authenticated and request.user.username.startswith('VS'):
+        is_kiosk = True
+        
+    if is_kiosk:
+        return render(request, 'track_status_kiosk.html', context)
+        
     return render(request, 'track_status.html', context)

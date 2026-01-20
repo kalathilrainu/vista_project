@@ -13,6 +13,11 @@ from .models import Visit, VisitLog, DailyTokenCounter, Purpose
 from .forms import VisitRegistrationForm, VisitActionForm
 from .services import log_visit_action
 from accounts.models import User, Office, Desk
+from .utils import generate_token_image
+import qrcode
+import io
+import base64
+from django.http import HttpResponse, FileResponse
 
 # Helper to get the default VISITOR user
 def get_visitor_user():
@@ -57,6 +62,40 @@ class KioskBaseMixin:
 
 class KioskHomeView(KioskBaseMixin, TemplateView):
     template_name = 'visit_regn/kiosk_home.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        office = context.get('office')
+        
+        if office:
+            # Generate QR Code for Mobile Entry
+            # URL: /visit/mobile-entry/?office=<code>
+            # We need absolute URL for the QR code to work on mobile
+            path = reverse('visit_regn:mobile_entry')
+            # Assuming request.build_absolute_uri handles domain/ip
+            url = self.request.build_absolute_uri(f"{path}?office={office.code}")
+            
+            # Generate QR
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_L,
+                box_size=10,
+                border=4,
+            )
+            qr.add_data(url)
+            qr.make(fit=True)
+            
+            img = qr.make_image(fill_color="black", back_color="white")
+            
+            # Convert to Base64 to embed in template
+            buffer = io.BytesIO()
+            img.save(buffer, format="PNG")
+            img_str = base64.b64encode(buffer.getvalue()).decode()
+            
+            context['qr_code_image'] = img_str
+            context['qr_url'] = url # For debugging/fallback
+            
+        return context
 
 class BaseRegisterView(KioskBaseMixin, CreateView):
     model = Visit
@@ -187,6 +226,70 @@ class TokenPrintView(KioskBaseMixin, DetailView):
             # Kiosk user or anonymous -> Kiosk Home
             context['exit_url'] = reverse('visit_regn:kiosk_home')
         return context
+
+
+# --- MOBILE VIEWS ---
+
+class MobileEntryView(TemplateView):
+    template_name = 'visit_regn/mobile_entry.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        office_code = self.request.GET.get('office')
+        if office_code:
+            context['office'] = Office.objects.filter(code=office_code).first()
+        
+        # Pass all purposes for dropdown
+        context['purposes'] = Purpose.objects.all().order_by('name')
+        return context
+        
+    def post(self, request, *args, **kwargs):
+        office_code = request.GET.get('office')
+        office = Office.objects.filter(code=office_code).first()
+        
+        if not office:
+            messages.error(request, "Invalid Office Link")
+            return redirect('visit_regn:mobile_entry')
+            
+        # Get data from POST
+        name = request.POST.get('name')
+        mobile = request.POST.get('mobile')
+        purpose_id = request.POST.get('purpose')
+        
+        visitor_user = get_visitor_user()
+        
+        # Purpose handling
+        if purpose_id:
+            purpose = Purpose.objects.filter(id=purpose_id).first()
+        else:
+             purpose, _ = Purpose.objects.get_or_create(name='General Enquiry')
+             
+        data = {
+            'name': name,
+            'mobile': mobile,
+            'purpose': purpose,
+            'reference_number': ''
+        }
+        
+        visit = Visit.create_from_kiosk(
+            data=data,
+            office=office,
+            user=visitor_user,
+            mode='MOBILE'
+        )
+        
+        return redirect('visit_regn:mobile_token', pk=visit.pk)
+
+class MobileTokenView(DetailView):
+    model = Visit
+    template_name = 'visit_regn/mobile_token_success.html'
+    context_object_name = 'visit'
+
+class DownloadTokenView(View):
+    def get(self, request, pk):
+        visit = get_object_or_404(Visit, pk=pk)
+        buffer = generate_token_image(visit)
+        return FileResponse(buffer, as_attachment=True, filename=f"Token_{visit.token}.jpg")
 
 
 # --- STAFF VIEWS ---

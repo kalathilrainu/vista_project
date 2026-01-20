@@ -19,7 +19,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=3.4">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=3.6">
     {% block extra_css %}{% endblock %}
 
     <link rel="shortcut icon" href="{% static 'images/vista_logo.png' %}" type="image/png">
@@ -56,9 +56,7 @@
         <!-- Left Side: VISTA v 1.0 -->
         <div class="nav-left" style="color: white; font-size: 1.5rem; font-weight: 700;">
             VISTA <span style="font-size: 1rem; opacity: 0.8; font-weight: 400;">v 1.0</span>
-            <span
-                style="font-family: 'Merriweather', serif; font-size: 1.6rem; margin-left: 17.5rem; font-style: italic; font-weight: 700; letter-spacing: 0.5px; opacity: 1; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Village
-                Office Nattakam</span>
+            <span class="office-name-nav">Village Office Nattakam</span>
         </div>
 
         <!-- Right Side: User Info & Logout -->
@@ -107,9 +105,9 @@
             <div class="d-flex">
                 <div class="toast-body">
                     {% if message.tags == 'success' %}
-                        <i class="bi bi-check-circle-fill me-2"></i>
+                    <i class="bi bi-check-circle-fill me-2"></i>
                     {% elif message.tags == 'error' %}
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
                     {% endif %}
                     {{ message }}
                 </div>
@@ -176,6 +174,13 @@
             <h4>About VISTA</h4>
             <p>An initiative to modernize Village Offices across Kerala, ensuring transparent and efficient service
                 delivery to citizens.</p>
+            <p>The platform also supports efficient queue management, employee task assignment, and monitoring of field
+                visits, thereby enhancing both citizen satisfaction and administrative efficiency. By integrating
+                service delivery with digital governance, VISTA reduces delays, minimizes manual errors, and creates a
+                structured workflow within the Village Office. Its vision is to transform Village Offices into
+                accessible, service-oriented hubs that act as the first digital gateway to governance for citizens at
+                the grassroots level. Ultimately, VISTA aims to set a benchmark in public service delivery by combining
+                technology, efficiency, and citizen-centric governance.</p>
         </div>
         <div class="footer-section">
             <h4>Important Links</h4>
@@ -183,18 +188,23 @@
                 <li><a href="https://kerala.gov.in" target="_blank">Kerala Govt Portal</a></li>
                 <li><a href="https://revenue.kerala.gov.in" target="_blank">Revenue Department</a></li>
                 <li><a href="https://edistrict.kerala.gov.in" target="_blank">e-District</a></li>
+                <li><a href="https://survey.entebhoomi.kerala.gov.in/portal/" target="_blank">Ente Bhoomi Portal</a>
+                </li>
             </ul>
         </div>
         <div class="footer-section">
             <h4>Contact Info</h4>
-            <p>Village Office, Nattakam</p>
-            <p>Kottayam, Kerala - 686013</p>
-            <p>Email: vo-nattakam@kerala.gov.in</p>
+            <p>Joseph Rainu KT<br>
+                Village Officer<br>
+                Village Office, Nattakam<br>
+                Kottayam, Kerala - 686013<br>
+                Email: vontkmktym.rev@kerala.gov.in<br>
+                Mobile : 8547612519</p>
         </div>
     </div>
     <div class="footer-bottom">
         <div class="container">
-            <p>&copy; {% now "Y" %} Dept of Revenue, Govt of Kerala. All Rights Reserved.</p>
+            <p>&copy; 2026 Village Office Nattakam, Dept of Revenue, Govt of Kerala. All Rights Reserved.</p>
             <p class="credits">Powered by VISTA</p>
         </div>
     </div>

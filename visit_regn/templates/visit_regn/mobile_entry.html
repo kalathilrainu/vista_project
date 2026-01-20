@@ -1,0 +1,216 @@
+{% load i18n %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visitor Registration</title>
+    <style>
+        :root {
+            --primary-green: #2E7D32;
+            --light-green: #E8F5E9;
+            --text-dark: #333;
+            --border-color: #ddd;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--light-green);
+            padding-bottom: 1rem;
+        }
+
+        .header h2 {
+            margin: 0;
+            color: var(--primary-green);
+        }
+
+        .header p {
+            color: #666;
+            margin: 5px 0 0;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-sizing: border-box;
+            /* Important for padding */
+            font-size: 1rem;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-green);
+            box-shadow: 0 0 0 2px var(--light-green);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-green);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-submit:hover {
+            background-color: #1B5E20;
+        }
+
+        .office-badge {
+            background: var(--light-green);
+            color: var(--primary-green);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .btn-cancel {
+            width: 100%;
+            padding: 15px;
+            background-color: #f8f9fa;
+            color: #6c757d;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            box-sizing: border-box;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel:hover {
+            background-color: #e2e6ea;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <div class="header">
+            {% if office %}
+            <div class="office-badge" style="margin-bottom: 20px;">{{ office.name }}</div>
+            {% endif %}
+
+            <!-- Mobile Search Bar -->
+            <div style="margin-bottom: 25px;">
+                <form action="{% url 'track_status' %}" method="get" style="display: flex; gap: 5px;">
+                    <input type="hidden" name="kiosk" value="true">
+                    {% if office %}
+                    <input type="hidden" name="office" value="{{ office.code }}">
+                    {% endif %}
+                    <input type="text" name="q" placeholder="Track File / Token..."
+                        style="padding: 10px; font-size: 0.9rem; border: 1px solid #ddd; border-radius: 20px; flex-grow: 1;">
+                    <button type="submit"
+                        style="background: #2E7D32; color: white; border: none; padding: 10px 15px; border-radius: 20px; cursor: pointer;">
+                        <span style="font-size: 0.9rem;">Search</span>
+                    </button>
+                </form>
+            </div>
+
+            <h2>Visitor Registration</h2>
+            <p>Please fill in your details below</p>
+        </div>
+
+        {% if messages %}
+        {% for message in messages %}
+        <div
+            style="background: #ffebee; color: #c62828; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center;">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if office %}
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="name">Name / പേര്</label>
+                <input type="text" id="name" name="name" required placeholder="Your Name">
+            </div>
+
+            <div class="form-group">
+                <label for="mobile">Mobile / മൊബൈൽ</label>
+                <input type="tel" id="mobile" name="mobile" required placeholder="10 Digit Mobile Number"
+                    pattern="[0-9]{10}">
+            </div>
+
+            <div class="form-group">
+                <label for="purpose">Purpose / ആവശ്യം</label>
+                <select id="purpose" name="purpose" required>
+                    <option value="" disabled selected>-- Select Purpose --</option>
+                    {% for p in purposes %}
+                    <option value="{{ p.id }}">{{ p.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="ref">Reference Number (Optional)</label>
+                <input type="text" id="ref" name="ref" placeholder="File No / Token No">
+            </div>
+
+            <button type="submit" class="btn-submit">Get Token</button>
+            <button type="button" class="btn-cancel" onclick="window.close()">Close</button>
+        </form>
+        {% else %}
+        <div style="text-align: center; color: red;">
+            <p>Invalid Office Link. Please rescan the QR Code.</p>
+        </div>
+        {% endif %}
+    </div>
+
+</body>
+
+</html>

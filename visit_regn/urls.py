@@ -12,6 +12,11 @@ urlpatterns = [
     
     path('token/<int:pk>/print/', views.TokenPrintView.as_view(), name='token_print'),
 
+    # Mobile
+    path('mobile-entry/', views.MobileEntryView.as_view(), name='mobile_entry'),
+    path('mobile-token/<int:pk>/', views.MobileTokenView.as_view(), name='mobile_token'),
+    path('visit/<int:pk>/download-token/', views.DownloadTokenView.as_view(), name='download_token'),
+
     # Staff
     path('staff/queue/', views.VisitQueueView.as_view(), name='visit_queue'),
     path('staff/visit/<int:pk>/', views.VisitDetailView.as_view(), name='visit_detail'),

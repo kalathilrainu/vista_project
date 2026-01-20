@@ -40,6 +40,7 @@
                 <div class="search-bar-container">
                     <form action="{% url 'track_status' %}" method="get"
                         style="display: flex; width: 100%; align-items: center;">
+                        <input type="hidden" name="kiosk" value="true">
                         <input type="text" name="q" placeholder="Track File / Token Status..."
                             class="kiosk-search-input" style="border: none; outline: none; flex-grow: 1;">
                         <button type="submit" class="btn-kiosk-search">Search</button>
@@ -51,14 +52,24 @@
             <div class="kiosk-actions">
 
                 <!-- Action 1: QR Check-in -->
-                <a href="{% url 'visit_regn:qr_register' %}" class="action-card">
+                <div class="action-card" style="cursor: default;">
                     <div class="card-icon-wrapper">
                         <!-- Using 'hero_illustration' as placeholder or 'search' if scan icon missing, or just SVG path -->
-                        <!-- Better to use an SVG path inline if we want a specific icon not in files, but let's use search.svg which implies 'scan/find' -->
+                        {% if qr_code_image %}
+                        <img src="data:image/png;base64,{{ qr_code_image }}" alt="Scan QR" class="card-icon"
+                            style="width: 120px; height: 120px; border-radius: 0;">
+                        {% else %}
                         <img src="{% static 'images/search.svg' %}" alt="QR Scan" class="card-icon">
+                        {% endif %}
                     </div>
                     <span class="card-title">QR Check-in</span>
-                </a>
+                    <!-- Debug: Show URL for verification -->
+                    <div style="font-size: 0.7rem; color: #666; margin-top: 5px; word-break: break-all;">
+                        <a href="{{ qr_url }}" target="_blank" style="text-decoration: none; color: inherit;">
+                            [Verify Link]
+                        </a>
+                    </div>
+                </div>
 
                 <!-- Action 2: Manual Registration -->
                 <a href="{% url 'visit_regn:manual_register' %}" class="action-card">

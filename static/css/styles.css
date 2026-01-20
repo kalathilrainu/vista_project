@@ -253,6 +253,38 @@ img {
     align-items: center;
 }
 
+/* Office Name in Navbar */
+.office-name-nav {
+    font-family: 'Merriweather', serif;
+    font-size: 1.6rem;
+    margin-left: 17.5rem;
+    font-style: italic;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    opacity: 1;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    white-space: nowrap;
+    /* Prevent wrapping */
+}
+
+/* Responsive adjustment for Office Name */
+@media (max-width: 900px) {
+    .office-name-nav {
+        margin-left: 1rem;
+        /* Reduce margin significantly */
+        font-size: 1.1rem;
+        /* Reduce font size */
+    }
+}
+
+@media (max-width: 400px) {
+    .office-name-nav {
+        font-size: 0.9rem;
+        /* Further reduce for very small screens */
+        margin-left: 0.5rem;
+    }
+}
+
 .nav-menu {
     display: flex;
 }
@@ -858,16 +890,16 @@ img {
     gap: 1.5rem;
 }
 
+.cards-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
 .cards-grid-3 {
     grid-template-columns: repeat(3, 1fr);
 }
 
 .cards-grid-4 {
     grid-template-columns: repeat(4, 1fr);
-}
-
-.cards-grid {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 
 .dash-card {

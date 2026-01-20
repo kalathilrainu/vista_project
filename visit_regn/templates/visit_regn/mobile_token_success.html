@@ -1,0 +1,141 @@
+{% load i18n %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Generated</title>
+    <style>
+        :root {
+            --primary-green: #2E7D32;
+            --light-green: #E8F5E9;
+            --text-dark: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--primary-green);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            width: 100%;
+            max-width: 350px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--light-green);
+            color: var(--primary-green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 20px;
+        }
+
+        .token-label {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .token-number {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: var(--primary-green);
+            margin: 0 0 20px;
+            line-height: 1;
+        }
+
+        .visit-info {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .info-label {
+            color: #888;
+        }
+
+        .info-val {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .btn-download {
+            background: #333;
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            display: inline-block;
+            font-weight: 500;
+            transition: transform 0.2s;
+        }
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <div class="success-icon">✓</div>
+
+        <div class="token-label">Your Token Number</div>
+        <div class="token-number">{{ visit.token }}</div>
+
+        <div class="visit-info">
+            <div class="info-row">
+                <span class="info-label">Name</span>
+                <span class="info-val">{{ visit.name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Purpose</span>
+                <span class="info-val">{{ visit.purpose.name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Date</span>
+                <span class="info-val">{% now "d-m-Y" %}</span>
+            </div>
+        </div>
+
+        <a href="{% url 'visit_regn:download_token' visit.pk %}" class="btn-download">
+            Download Token Image
+        </a>
+
+        <p style="margin-top: 20px; color: #999; font-size: 0.8rem;">
+            Please present this token at the counter.
+        </p>
+    </div>
+
+</body>
+
+</html>
