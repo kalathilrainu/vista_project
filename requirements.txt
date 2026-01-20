@@ -3,3 +3,4 @@ mysqlclient
 whitenoise
 gunicorn
 requests
+Pillow
