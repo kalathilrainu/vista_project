@@ -84,16 +84,39 @@ WSGI_APPLICATION = 'vista_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'vista_db',
-        'USER': 'root',
-        'PASSWORD': 'Test@123',
-        'HOST': 'localhost',
-        'PORT': '3306',
+# Database Configuration
+# ------------------------------------------------------------------------------
+import os
+
+# Check if running on PythonAnywhere
+if 'PYTHONANYWHERE_DOMAIN' in os.environ:
+    # PRODUCTION SETTINGS (PythonAnywhere)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'vistanattakam$default',
+            'USER': 'vistanattakam',
+            'PASSWORD': 'Test@1234',  # Updated password from user input
+            'HOST': 'vistanattakam.mysql.pythonanywhere-services.com',
+            'PORT': '3306',
+        }
     }
-}
+    ALLOWED_HOSTS = ['vistanattakam.pythonanywhere.com']
+    DEBUG = False
+else:
+    # LOCAL DEVELOPMENT SETTINGS
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'vista_db',
+            'USER': 'root',
+            'PASSWORD': 'Test@123',
+            'HOST': 'localhost',
+            'PORT': '3306',
+        }
+    }
+    ALLOWED_HOSTS = ['*']
+    DEBUG = True
 
 
 # Password validation
@@ -148,7 +171,18 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
-# Authentication Redirects
+# Session Security (Added for Office Safety)
+# ------------------------------------------------------------------------------
+# 1. Expire session when browser is closed (prevents "logged in forever" risk)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# 2. Auto-logout after 30 minutes (1800 seconds) of inactivity
+SESSION_COOKIE_AGE = 1800 
+
+# 3. Reset the 30-minute timer every time the user requests a page
+SESSION_SAVE_EVERY_REQUEST = True
+
+
 # Authentication Redirects
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'landing'
