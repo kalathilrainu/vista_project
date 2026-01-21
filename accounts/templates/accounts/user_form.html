@@ -37,36 +37,11 @@
 
 
 
-                {% if form.password1 %}
-                <!-- UserCreationForm Password Fields -->
+                <!-- Password Auto-set to Default -->
                 <div
-                    style="grid-column: span 2; background: #f9fafb; padding: 1.5rem; border-radius: 8px; border: 1px dashed var(--brand-primary);">
-                    <h4 style="margin-bottom: 1rem; font-size: 1rem; color: var(--brand-dark);">Set Password</h4>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                        <div>
-                            <label class="form-label"
-                                style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Password</label>
-                            {{ form.password1 }}
-                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">{{
-                                form.password1.help_text }}</div>
-                        </div>
-                        <div>
-                            <label class="form-label"
-                                style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Confirm
-                                Password</label>
-                            {{ form.password2 }}
-                        </div>
-                    </div>
-                    {% if form.password1.errors %}
-                    <div style="color: #ef4444; font-size: 0.85rem; margin-top: 0.5rem;">{{ form.password1.errors }}
-                    </div>
-                    {% endif %}
-                    {% if form.password2.errors %}
-                    <div style="color: #ef4444; font-size: 0.85rem; margin-top: 0.5rem;">{{ form.password2.errors }}
-                    </div>
-                    {% endif %}
+                    style="grid-column: span 2; background: #ecfdf5; padding: 1rem; border-radius: 8px; border: 1px dashed var(--brand-primary); color: var(--brand-dark); font-size: 0.9rem;">
+                    <strong>Note:</strong> New users are created with the default password: <code>Vista@123</code>
                 </div>
-                {% endif %}
 
                 <div style="grid-column: span 2;">
                     <label class="form-label" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">System

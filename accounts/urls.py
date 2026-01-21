@@ -12,6 +12,11 @@ urlpatterns = [
     path('management/users/', views.UserListView.as_view(), name='user_list'),
     path('management/users/add/', views.UserCreateView.as_view(), name='user_create'),
     path('management/users/<int:pk>/edit/', views.UserUpdateView.as_view(), name='user_update'),
+    path('management/users/<int:pk>/reset-password/', views.reset_password, name='user_reset_password'),
+
+    # Password Change (Self-Service)
+    path('password-change/', auth_views.PasswordChangeView.as_view(template_name='accounts/password_change.html', success_url='/accounts/password-change/done/'), name='password_change'),
+    path('password-change/done/', auth_views.PasswordChangeDoneView.as_view(template_name='accounts/password_change_done.html'), name='password_change_done'),
 
     # Staff URLs
     path('management/staff/', views.StaffMemberListView.as_view(), name='staff_list'),

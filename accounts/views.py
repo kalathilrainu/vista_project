@@ -11,6 +11,7 @@ from .forms import CustomUserCreationForm, CustomUserChangeForm, StaffMemberForm
 from .utils import get_current_staff_for_user
 from django.contrib.auth.views import LoginView
 from django.conf import settings
+from .mixins import AdminRequiredMixin
 
 
 
@@ -58,9 +59,12 @@ def user_management(request):
     """
     Landing page for User Management Module.
     """
+    if request.user.role not in ['ADMIN', 'SUPER_ADMIN']:
+        messages.error(request, "You do not have permission to access this page.")
+        return redirect('landing')
     return render(request, 'accounts/management.html')
 
-class StaffMemberListView(LoginRequiredMixin, ListView):
+class StaffMemberListView(LoginRequiredMixin, AdminRequiredMixin, ListView):
     model = StaffMember
     template_name = 'accounts/staff_list.html'
     context_object_name = 'staff_members'
@@ -77,7 +81,7 @@ class StaffMemberListView(LoginRequiredMixin, ListView):
             )
         return queryset
 
-class StaffMemberCreateView(LoginRequiredMixin, CreateView):
+class StaffMemberCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
     model = StaffMember
     form_class = StaffMemberForm
     template_name = 'accounts/staff_form.html'
@@ -88,7 +92,7 @@ class StaffMemberCreateView(LoginRequiredMixin, CreateView):
         context['title'] = 'Add New Staff Member'
         return context
 
-class StaffMemberUpdateView(LoginRequiredMixin, UpdateView):
+class StaffMemberUpdateView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
     model = StaffMember
     form_class = StaffMemberForm
     template_name = 'accounts/staff_form.html'
@@ -99,7 +103,7 @@ class StaffMemberUpdateView(LoginRequiredMixin, UpdateView):
         context['title'] = 'Edit Staff Member'
         return context
 
-class UserAssignmentListView(LoginRequiredMixin, ListView):
+class UserAssignmentListView(LoginRequiredMixin, AdminRequiredMixin, ListView):
     model = UserAssignment
     template_name = 'accounts/userassignment_list.html'
     context_object_name = 'assignments'
@@ -115,7 +119,7 @@ class UserAssignmentListView(LoginRequiredMixin, ListView):
             )
         return queryset
 
-class UserAssignmentCreateView(LoginRequiredMixin, CreateView):
+class UserAssignmentCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
     model = UserAssignment
     form_class = UserAssignmentForm
     template_name = 'accounts/userassignment_form.html'
@@ -126,7 +130,7 @@ class UserAssignmentCreateView(LoginRequiredMixin, CreateView):
         context['title'] = 'Create New Assignment'
         return context
 
-class UserAssignmentUpdateView(LoginRequiredMixin, UpdateView):
+class UserAssignmentUpdateView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
     model = UserAssignment
     form_class = UserAssignmentForm
     template_name = 'accounts/userassignment_form.html'
@@ -137,7 +141,7 @@ class UserAssignmentUpdateView(LoginRequiredMixin, UpdateView):
         context['title'] = 'Edit Assignment'
         return context
 
-class LoginSessionListView(LoginRequiredMixin, ListView):
+class LoginSessionListView(LoginRequiredMixin, AdminRequiredMixin, ListView):
     model = LoginSession
     template_name = 'accounts/loginsession_list.html'
     context_object_name = 'sessions'
@@ -154,6 +158,7 @@ class LoginSessionListView(LoginRequiredMixin, ListView):
             )
         return queryset
 
+@login_required
 def load_desks(request):
     office_id = request.GET.get('office')
     if not office_id:
@@ -161,7 +166,7 @@ def load_desks(request):
     desks = Desk.objects.filter(office_id=office_id).order_by('name')
     return JsonResponse(list(desks.values('id', 'name')), safe=False)
 
-class UserListView(LoginRequiredMixin, ListView):
+class UserListView(LoginRequiredMixin, AdminRequiredMixin, ListView):
     model = User
     template_name = 'accounts/user_list.html'
     context_object_name = 'users'
@@ -178,7 +183,7 @@ class UserListView(LoginRequiredMixin, ListView):
             )
         return queryset
 
-class UserCreateView(LoginRequiredMixin, CreateView):
+class UserCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
     model = User
     form_class = CustomUserCreationForm
     template_name = 'accounts/user_form.html'
@@ -205,7 +210,7 @@ class UserCreateView(LoginRequiredMixin, CreateView):
         messages.success(self.request, f"User created successfully! Username: {user.username}")
         return super(UserCreateView, self).form_valid(form)
 
-class UserUpdateView(LoginRequiredMixin, UpdateView):
+class UserUpdateView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
     model = User
     form_class = CustomUserChangeForm
     template_name = 'accounts/user_form.html'
@@ -234,14 +239,26 @@ def who_am_i(request):
     }
     return JsonResponse(data)
 
+@login_required
+def reset_password(request, pk):
+    if request.user.role not in ['ADMIN', 'SUPER_ADMIN', 'VO']:
+        messages.error(request, "You do not have permission to perform this action.")
+        return redirect('user_list')
+        
+    user = User.objects.get(pk=pk)
+    user.set_password("Vista@123")
+    user.save()
+    messages.success(request, f"Password for {user.username} has been reset to 'Vista@123'.")
+    return redirect('user_list')
+
 # Office Management Views
-class OfficeListView(LoginRequiredMixin, ListView):
+class OfficeListView(LoginRequiredMixin, AdminRequiredMixin, ListView):
     model = Office
     template_name = 'accounts/office_list.html'
     context_object_name = 'offices'
     paginate_by = 10
 
-class OfficeCreateView(LoginRequiredMixin, CreateView):
+class OfficeCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
     model = Office
     form_class = OfficeForm
     template_name = 'accounts/office_form.html'
@@ -252,7 +269,7 @@ class OfficeCreateView(LoginRequiredMixin, CreateView):
         context['title'] = 'Create New Office'
         return context
 
-class OfficeUpdateView(LoginRequiredMixin, UpdateView):
+class OfficeUpdateView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
     model = Office
     form_class = OfficeForm
     template_name = 'accounts/office_form.html'
@@ -264,7 +281,7 @@ class OfficeUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
 # Desk Management Views
-class DeskListView(LoginRequiredMixin, ListView):
+class DeskListView(LoginRequiredMixin, AdminRequiredMixin, ListView):
     model = Desk
     template_name = 'accounts/desk_list.html'
     context_object_name = 'desks'
@@ -280,7 +297,7 @@ class DeskListView(LoginRequiredMixin, ListView):
             )
         return queryset
 
-class DeskCreateView(LoginRequiredMixin, CreateView):
+class DeskCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
     model = Desk
     form_class = DeskForm
     template_name = 'accounts/desk_form.html'
@@ -291,7 +308,7 @@ class DeskCreateView(LoginRequiredMixin, CreateView):
         context['title'] = 'Create New Desk'
         return context
 
-class DeskUpdateView(LoginRequiredMixin, UpdateView):
+class DeskUpdateView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
     model = Desk
     form_class = DeskForm
     template_name = 'accounts/desk_form.html'

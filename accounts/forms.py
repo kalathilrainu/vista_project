@@ -14,7 +14,7 @@ class UserAssignmentForm(forms.ModelForm):
             'to_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
         }
 
-class CustomUserCreationForm(UserCreationForm):
+class CustomUserCreationForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ('username', 'role', 'office', 'desk')
@@ -37,6 +37,13 @@ class CustomUserCreationForm(UserCreationForm):
                 self.fields['desk'].queryset = Desk.objects.filter(office_id=office_id).order_by('name')
             except (ValueError, TypeError):
                 pass
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password("Vista@123")
+        if commit:
+            user.save()
+        return user
 
 class CustomUserChangeForm(UserChangeForm):
     class Meta:

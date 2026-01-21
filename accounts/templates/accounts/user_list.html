@@ -61,6 +61,12 @@
                         {% endif %}
                     </td>
                     <td style="padding: 1rem; text-align: right;">
+                        {% if user.role != 'SUPER_ADMIN' and user != request.user %}
+                        <a href="{% url 'user_reset_password' user.pk %}"
+                            onclick="return confirm('Are you sure you want to reset the password for {{ user.username }} to Vista@123?');"
+                            style="color: #d97706; font-weight: 600; font-size: 0.9rem; margin-right: 1rem;">Reset
+                            Pass</a>
+                        {% endif %}
                         <a href="{% url 'user_update' user.pk %}"
                             style="color: var(--brand-primary); font-weight: 600; font-size: 0.9rem;">Edit</a>
                     </td>
